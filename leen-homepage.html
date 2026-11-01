@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="StudentMarket is a marketplace for university students to buy and sell everyday essentials within their communities.">
+  <title>StudentMarket | Student Marketplace</title>
+  <style>
+    :root {
+      --text: #26342f;
+      --muted: #5d6862;
+      --green: #2f5d4a;
+      --green-dark: #1f3d31;
+      --mint: #eaf3ee;
+      --light: #f3f6f3;
+      --border: #dce3dd;
+      --footer: #254537;
+      --accent: #6e518e;
+      --accent-dark: #503b69;
+      --lavender: #f0eaf7;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: #fff; color: var(--text); font: 16px/1.6 Arial, Helvetica, sans-serif; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+    button, select { cursor: pointer; }
+    h1, h2, h3, p { margin-top: 0; }
+    h2, h3 { line-height: 1.25; }
+    h2 { font-size: 30px; font-weight: 600; letter-spacing: -.7px; }
+    button, summary, a { -webkit-tap-highlight-color: transparent; }
+    a:focus-visible, summary:focus-visible, button:focus-visible,
+    input:focus-visible, select:focus-visible, [tabindex="-1"]:focus-visible { outline: 3px solid #315da8; outline-offset: 4px; }
+    [id] { scroll-margin-top: 24px; }
+    .site-header, .category-nav, .content-wrap, .footer-inner { width: min(1180px, 92%); margin-inline: auto; }
+    .eyebrow { margin: 0 0 12px; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 1.8px; }
+    .skip-link { position: absolute; top: -100px; left: 12px; padding: 12px 18px; background: white; z-index: 20; }
+    .skip-link:focus { top: 12px; }
+    .site-header { position: relative; display: flex; align-items: center; gap: 24px; min-height: 76px; padding-block: 15px; }
+    .logo { font-family: Arial, Helvetica, sans-serif; font-size: 32px; font-weight: 700; letter-spacing: -1.15px; white-space: nowrap; }
+    .logo span { color: var(--green); }
+    .main-nav, .account-buttons { display: flex; align-items: center; gap: 25px; }
+    .main-nav { margin-left: auto; justify-content: flex-end; }
+    .main-nav a, .main-nav summary { font-size: 14px; white-space: nowrap; }
+    .main-nav a:hover, .main-nav summary:hover { color: var(--green); text-decoration: underline; text-underline-offset: 5px; }
+    .account-buttons { gap: 10px; padding-left: 20px; border-left: 1px solid var(--border); }
+    .button { display: inline-block; padding: 11px 22px; border: 1px solid var(--green); border-radius: 12px; font-size: 15px; font-weight: 600; }
+    .account-buttons .outline { border-color: transparent; }
+    .primary { background: var(--green); color: white; }
+    .primary:hover { background: var(--green-dark); }
+    .outline { background: white; color: var(--green); border-color: #9aaea1; }
+    .outline:hover { background: var(--light); }
+    .menu-disclosure { position: relative; }
+    .menu-disclosure > summary { display: block; cursor: pointer; list-style: none; }
+    .menu-disclosure > summary::-webkit-details-marker { display: none; }
+    .menu-disclosure[open] > summary { outline: 2px solid var(--green); outline-offset: 3px; }
+    .menu-panel { position: absolute; right: 0; top: calc(100% + 14px); width: 255px; padding: 20px; background: white; border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 6px 20px #26342f15; z-index: 10; font-size: 13px; }
+    .menu-panel h2 { margin-bottom: 8px; font-size: 18px; }
+    .menu-panel p { margin: 0; color: var(--muted); }
+
+    
+    .hero { background: var(--mint); border-block: 1px solid var(--border); padding-block: 48px 44px; }
+    .hero-inner { width: min(1180px, 92%); margin-inline: auto; }
+    .hero-content { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 0 64px; }
+    .hero-intro, .hero-tools { min-width: 0; }
+    .search-label { display: block; margin-bottom: 12px; color: var(--green-dark); font-size: 16px; font-weight: 700; }
+    .hero .eyebrow { margin-bottom: 22px; font-size: 12px; letter-spacing: 2px; }
+    .hero-title { margin: 0 0 20px; font-size: clamp(44px, 5.2vw, 66px); font-weight: 800; line-height: 1.04; letter-spacing: -2.6px; }
+    .hero-title span { display: block; margin-top: 3px; color: var(--accent); }
+    .hero-description { max-width: 550px; margin: 0; color: var(--muted); font-size: 17px; line-height: 1.65; }
+    .hero-search { margin-top: 0; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    .search-area { display: flex; align-items: center; gap: 12px; padding: 8px; background: white; border: 1px solid #d5e0d8; border-radius: 17px; box-shadow: 0 12px 25px #26342f0c; }
+    .search-icon { width: 23px; height: 23px; margin-left: 14px; flex-shrink: 0; color: var(--muted); }
+    .search-area input { min-width: 0; flex: 1; width: 100%; padding: 14px 6px; border: 0; border-radius: 5px; background: white; font-size: 15px; color: var(--text); }
+    .search-area input::placeholder { color: var(--muted); opacity: 1; }
+    .search-area button { flex-shrink: 0; min-width: 104px; padding: 14px 18px; background: var(--green); color: white; border-color: var(--green); font-size: 15px; }
+    .search-area button:hover { background: var(--green-dark); }
+    .search-area :disabled { cursor: not-allowed; opacity: 1; }
+    .quick-links { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-top: 17px; }
+    .quick-links > span { margin-right: 3px; color: var(--muted); font-size: 14px; }
+    .quick-links a { padding: 5px 15px; border: 1px solid #c8dcd0; border-radius: 999px; background: #ffffffb3; color: var(--green-dark); font-size: 14px; }
+    .quick-links a:hover { background: white; border-color: var(--green); }
+    .sell-prompt { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 30px; align-items: center; margin-top: 28px; padding-top: 26px; border-top: 1px solid #cddfd4; }
+    .sell-prompt > p { max-width: 680px; margin: 0; color: var(--muted); font-size: 14px; }
+    .hero-sell { position: relative; }
+    .hero-sell > summary { display: block; cursor: pointer; list-style: none; }
+    .hero-sell > summary::-webkit-details-marker { display: none; }
+    .hero-sell .button { padding: 11px 19px; white-space: nowrap; border: 2px solid var(--green); }
+    .sell-message { position: absolute; top: calc(100% + 12px); right: 0; z-index: 5; width: 320px; margin: 0; padding: 20px; background: white; border: 1px solid var(--border); border-radius: 9px; box-shadow: 0 8px 24px #26342f15; color: var(--muted); font-size: 13px; }
+
+
+
+    
+    .listing-categories { margin-bottom: 25px; }
+    .category-list { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; margin: 0; padding: 0; }
+    .category-list a { display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px; border: 1px solid var(--border); border-radius: 999px; background: #fff; font-size: 14px; font-weight: 500; }
+    .category-list .all-items { color: white; background: var(--green); border-color: var(--green); }
+    .category-list a:hover { border-color: var(--green); background: var(--mint); }
+    .category-list .all-items:hover { background: var(--green-dark); }
+    .category-icon { width: 19px; height: 19px; flex-shrink: 0; color: var(--green); }
+    .all-items .category-icon { color: white; }
+    .category-count { font-size: 12px; opacity: .8; }
+
+    .listings { margin-top: 54px; }
+    .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 24px; }
+    .section-heading h2 { margin-bottom: 0; font-weight: 700; font-size: 34px; }
+    .section-heading > p { margin: 0; }
+    .listing-count { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
+    .sort-control { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 14px; }
+    .sort-control select { min-width: 210px; max-width: 100%; padding: 12px 38px 12px 15px; border: 1px solid #bccfc2; border-radius: 12px; background: white; color: var(--text); }
+    .sort-control select:focus-visible { outline-color: #6ba486; }
+    .listing-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: start; gap: 20px; }
+    .listing-card { min-width: 0; padding: 0; background: #fff; border: 1px solid var(--border); border-radius: 12px; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+    .listing-content { padding: 24px; }
+
+    .photo-label { display: block; margin-bottom: 12px; color: var(--green-dark); font-size: 15px; font-weight: 700; }
+    .sell-message p { margin: 12px 0 0; font-size: 12px; line-height: 1.6; }
+    .photo-input { display: block; width: 100%; min-width: 0; color: var(--muted); font-size: 12px; }
+    .photo-input::file-selector-button { margin-right: 8px; padding: 7px 9px; border: 1px solid #d7c9e5; border-radius: 7px; background: var(--lavender); color: var(--accent-dark); font: inherit; font-weight: 600; cursor: pointer; }
+    .photo-input::file-selector-button:hover { background: #e5daf1; }
+    .search-area button:disabled, .sort-control select:disabled { cursor: not-allowed; }
+    .sort-control select:disabled { opacity: .75; }
+    .listing-card:focus-within { border-color: #8aaa97; box-shadow: 0 8px 24px #26342f10; }
+    @media (hover: hover) and (pointer: fine) {
+      .listing-card:hover { transform: translateY(-4px); border-color: #a6bfae; box-shadow: 0 12px 28px #26342f14; }
+    }
+    .listing-card:target { outline: 2px solid var(--green); outline-offset: 3px; }
+    .listing-heading h3 { min-height: 2.5em; margin: 0 0 10px; font-size: 18px; font-weight: 600; overflow-wrap: anywhere; }
+    .item-category { margin: 0 0 14px; color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    .item-price { margin: 0; color: var(--green); font-size: 23px; font-weight: 600; }
+    .item-meta { display: flex; flex-direction: column; align-items: start; gap: 10px; margin: 12px 0 18px; }
+    .condition-badge { display: inline-block; padding: 4px 11px; border: 1px solid transparent; border-radius: 999px; font-size: 12px; font-weight: 600; line-height: 1.6; }
+    .condition-good { color: #785719; background: #fff3cf; border-color: #e8d293; }
+    .condition-like-new { color: #50565b; background: #edf0f2; border-color: #d4d9de; }
+    .condition-new { color: #246143; background: #e1f3e7; border-color: #baddc6; }
+    .condition-fair { color: #ae2525; background: #ffe5e5; border-color: #efadad; }
+    .item-location { min-height: 1.6em; color: var(--muted); font-size: 12px; }
+    .item-details summary { width: fit-content; color: var(--green); cursor: pointer; font-size: 13px; font-weight: 600; }
+    .item-details p { margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+
+    .about-section { display: grid; grid-template-columns: 1fr 1.2fr; align-items: center; gap: 55px; margin-block: 64px; padding: 40px; background: var(--light); border-radius: 7px; }
+    .about-section h2, .about-section > p { margin-bottom: 0; }
+    .about-section > p { color: var(--muted); font-size: 15px; line-height: 1.9; }
+    .guides h2 { margin-bottom: 26px; }
+    .guide-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 44px; }
+    .guide { border-top: 2px solid var(--border); padding-top: 24px; }
+    .guide h3 { margin-bottom: 12px; font-size: 21px; font-weight: 600; }
+    .guide p { max-width: 500px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.9; }
+    .faq-section { display: grid; grid-template-columns: 1fr 1.4fr; gap: 64px; margin-block: 64px; padding-top: 40px; border-top: 1px solid var(--border); }
+    .faq-section h2 { max-width: 300px; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-item:first-child { border-top: 1px solid var(--border); }
+    .faq-item summary { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 19px 0; cursor: pointer; list-style: none; font-size: 15px; font-weight: 600; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: '+'; flex-shrink: 0; color: var(--green); font-size: 23px; font-weight: 400; line-height: 1; }
+    .faq-item[open] summary::after { content: '−'; }
+    .faq-item p { margin: 0; padding: 0 28px 20px 0; color: var(--muted); font-size: 14px; line-height: 1.8; }
+
+    
+    .site-footer { background: var(--footer); color: #f4f8f5; padding-top: 50px; }
+    .footer-grid { display: grid; grid-template-columns: 1.7fr 1fr 1fr 1fr; gap: 40px; padding-bottom: 44px; }
+    .site-footer .logo { display: inline-block; margin-bottom: 16px; color: white; font-size: 25px; }
+    .site-footer .logo span { color: #d4e6d9; }
+    .footer-brand p { max-width: 270px; margin: 0; color: #d4e0d7; font-size: 14px; line-height: 1.9; }
+    .footer-group h2 { margin-bottom: 18px; color: #d4e6d9; font-size: 13px; font-weight: 600; letter-spacing: .3px; }
+    .footer-links { display: grid; gap: 11px; list-style: none; margin: 0; padding: 0; }
+    .footer-links a { display: inline-block; font-size: 14px; }
+    .site-footer a:hover { text-decoration: underline; text-underline-offset: 4px; }
+    .site-footer a:focus-visible { outline-color: #e6f4d8; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; gap: 20px; border-top: 1px solid #ffffff38; padding-block: 22px; font-size: 12px; }
+    .footer-bottom p { margin: 0; color: #d4e0d7; }
+    .footer-bottom a { font-size: 13px; }
+
+    @media (max-width: 1100px) {
+      .hero-content { gap: 0 36px; }
+      .hero-title { font-size: 58px; }
+    }
+    @media (max-width: 850px) {
+      .hero-content { grid-template-columns: 1fr; gap: 28px; }
+      .hero-tools { max-width: 680px; }
+      .sell-prompt { margin-top: 0; }
+    }
+    @media (max-width: 1000px) {
+      .site-header { flex-wrap: wrap; gap: 18px; }
+      .main-nav { order: 3; justify-content: flex-end; width: 100%; margin-left: 0; }
+      .account-buttons { margin-left: auto; }
+      .listing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .footer-grid { grid-template-columns: 1.4fr 1fr 1fr; gap: 28px; }
+      .footer-brand { grid-column: 1 / -1; }
+      .footer-brand p { max-width: 440px; }
+      .menu-disclosure { position: static; }
+      .menu-panel { top: calc(100% + 8px); right: 0; width: min(280px, 100%); }
+    }
+    @media (max-width: 640px) {
+      .site-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; padding-block: 18px 14px; gap: 17px 10px; }
+      .site-header .logo { font-size: 20px; }
+      .account-buttons { gap: 7px; padding-left: 0; border-left: 0; }
+      .account-buttons .button { padding: 8px 10px; font-size: 12px; }
+      .account-buttons .outline { padding-inline: 2px; }
+      .main-nav { grid-column: 1 / -1; gap: 20px; padding-top: 12px; border-top: 1px solid var(--border); }
+      .main-nav a, .main-nav summary { font-size: 13px; }
+      .hero { padding-block: 34px 32px; }
+      .hero .eyebrow { margin-bottom: 18px; font-size: 10px; letter-spacing: 1.5px; }
+      .hero-title { font-size: clamp(37px, 7.4vw, 48px); letter-spacing: -1.6px; margin-bottom: 20px; }
+      .hero-description { font-size: 16px; }
+      .hero-search { margin-top: 0; }
+      .search-area { gap: 5px; padding: 6px; border-radius: 13px; }
+      .search-icon { margin-left: 5px; width: 18px; height: 18px; }
+      .search-area input { padding: 12px 3px; font-size: 13px; }
+      .search-area button { min-width: 0; padding: 11px 14px; font-size: 13px; border-radius: 9px; }
+      .quick-links { gap: 7px; }
+      .quick-links a { padding: 5px 11px; font-size: 12px; }
+      .quick-links > span { font-size: 12px; }
+      .sell-prompt { grid-template-columns: 1fr; gap: 14px; margin-top: 24px; padding-top: 22px; }
+      .sell-prompt > p { font-size: 14px; }
+      .hero-sell { width: fit-content; }
+      .sell-message { position: static; width: 100%; max-width: 100%; margin-top: 12px; }
+      .hero-sell[open] { width: 100%; }
+      .category-list { gap: 8px; }
+      .category-list a { font-size: 12px; padding: 8px 12px; gap: 7px; }
+      .category-icon { width: 16px; height: 16px; }
+      .section-heading h2 { font-size: 28px; }
+      .listings { margin-top: 40px; }
+      .section-heading { display: block; margin-bottom: 22px; }
+      .section-heading > p { margin-top: 10px; }
+      .sort-control { margin-top: 18px; justify-content: space-between; }
+      .sort-control select { min-width: 0; width: min(230px, 80%); }
+      h2 { font-size: 27px; }
+      .listing-grid { grid-template-columns: 1fr; gap: 16px; }
+      .listing-content { padding: 22px; }
+      .listing-heading h3, .item-location { min-height: 0; }
+      .about-section { grid-template-columns: 1fr; gap: 22px; margin-block: 44px; padding: 28px 24px; }
+      .about-section > p { font-size: 14px; }
+      .guide-grid { grid-template-columns: 1fr; gap: 26px; }
+      .guide p { font-size: 14px; }
+      .faq-section { grid-template-columns: 1fr; gap: 12px; margin-block: 44px; padding-top: 30px; }
+      .faq-section h2 { max-width: none; margin-bottom: 12px; }
+      .site-footer { padding-top: 36px; }
+      .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; }
+      .footer-brand { grid-column: 1 / -1; }
+      .footer-group h2 { margin-bottom: 14px; }
+      .footer-bottom { align-items: start; flex-direction: column; gap: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .listing-card { transition: none; }
+      .listing-card:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header" id="top" tabindex="-1">
+    <a class="logo" href="#top" aria-label="StudentMarket home">Student<span>Market</span></a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="#listings">Browse</a>
+      <details class="menu-disclosure">
+        <summary>Sell</summary>
+        <div class="menu-panel">
+          <h2>Selling is coming soon</h2>
+          <p>Creating a listing is not available in this homepage preview. Select Sell again to close.</p>
+        </div>
+      </details>
+      <a href="#how-it-works">How it works</a>
+      <a href="#about">About</a>
+    </nav>
+    <div class="account-buttons">
+      <details class="menu-disclosure">
+        <summary class="button outline">Log In</summary>
+        <div class="menu-panel">
+          <h2>Log in is coming soon</h2>
+          <p>Signing in is not available in this homepage preview. Select Log In again to close.</p>
+        </div>
+      </details>
+      <details class="menu-disclosure">
+        <summary class="button primary">Sign Up</summary>
+        <div class="menu-panel">
+          <h2>Sign up is coming soon</h2>
+          <p>Account creation is not available in this homepage preview. Select Sign Up again to close.</p>
+        </div>
+      </details>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section class="hero" aria-labelledby="welcome-title">
+      <div class="hero-inner">
+        <div class="hero-content">
+          <div class="hero-intro">
+          <p class="eyebrow">YOUR CAMPUS, YOUR COMMUNITY</p>
+          <h1 class="hero-title" id="welcome-title">Good finds <span>Small prices</span></h1>
+          <p class="hero-description">Buy and sell the things you need for student life, from textbooks and tech to furniture for your space.</p>
+
+          </div>
+          <div class="hero-tools">
+          <div class="hero-search" role="search" aria-label="Marketplace search">
+            <label class="search-label" for="item-search">What are you looking for?</label>
+            <div class="search-area">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7.5"/><path d="m16 16 5 5"/></svg>
+              <input id="item-search" type="search" placeholder="Search textbooks, furniture, tech...">
+              <button class="button" type="button" disabled title="Search is not connected">Search</button>
+            </div>
+          </div>
+
+          <nav class="quick-links" aria-label="Quick item links">
+            <span>Explore:</span>
+            <a href="#textbooks">Calculus</a>
+            <a href="#furniture">Desk</a>
+            <a href="#electronics">Headphones</a>
+            <a href="#more">Backpack</a>
+          </nav>
+
+          </div>
+          <div class="sell-prompt">
+            <p>Finished a course or moving out? Give the items you no longer need a new home.</p>
+            <details class="hero-sell">
+              <summary class="button outline">Sell an item</summary>
+              <div class="sell-message">
+                <label class="photo-label" for="listing-photo">Upload a photo</label>
+                <input class="photo-input" id="listing-photo" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="photo-note">
+                <p id="photo-note">File selection only. Your photo is not uploaded or published yet.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="content-wrap">
+      <section class="listings" id="listings" tabindex="-1" aria-labelledby="listings-title">
+        <div class="section-heading">
+          <div><h2 id="listings-title">Explore listings</h2><p class="listing-count">6 items · Prices in CAD</p></div>
+          <div class="sort-control">
+            <label for="listing-sort">Sort</label>
+            <select id="listing-sort" disabled title="Sorting is not connected">
+              <option value="newest">Newest</option>
+              <option value="price-low">Price: low to high</option>
+              <option value="price-high">Price: high to low</option>
+              <option value="name">Name: A–Z</option>
+            </select>
+          </div>
+        </div>
+        <nav class="listing-categories" aria-label="Browse item categories">
+          <ul class="category-list">
+              <li><a class="all-items" href="#listings"><svg class="category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>All items</a></li>
+              <li><a href="#furniture"><svg class="category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12V6a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v6M4 10v7h16v-7M6 17v4m12-4v4M4 13h16"/></svg>Furniture</a></li>
+              <li><a href="#textbooks"><svg class="category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h15v18H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm-2 14h17"/></svg>Textbooks</a></li>
+              <li><a href="#electronics"><svg class="category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14v-3a9 9 0 0 1 18 0v3"/><rect x="3" y="12" width="4" height="9" rx="2"/><rect x="17" y="12" width="4" height="9" rx="2"/></svg>Electronics</a></li>
+              <li><a href="#school-supplies"><svg class="category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 13-13 5 5-13 13H3v-5ZM13 6l5 5M3 16l5 5"/></svg>School Supplies</a></li>
+              <li><a href="#more"><svg class="category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>More</a></li>
+          </ul>
+        </nav>
+        <div class="listing-grid">
+          <article class="listing-card" id="furniture" tabindex="-1">
+            <div class="listing-content">
+            <p class="item-category">Furniture</p>
+            <div class="listing-heading"><h3>Study desk</h3><p class="item-price">$50.00</p></div>
+            <p class="item-meta"><span class="condition-badge condition-good" aria-label="Condition: Good">Good</span><span class="item-location">Waterloo</span></p>
+            <details class="item-details"><summary>View details</summary><p>A compact desk with room for a laptop and notebooks.</p></details>
+            </div>
+          </article>
+          <article class="listing-card" id="textbooks" tabindex="-1">
+            <div class="listing-content">
+            <p class="item-category">Textbooks</p>
+            <div class="listing-heading"><h3>Calculus textbook</h3><p class="item-price">$25.00</p></div>
+            <p class="item-meta"><span class="condition-badge condition-good" aria-label="Condition: Good">Good</span><span class="item-location">Wilfrid Laurier University</span></p>
+            <details class="item-details"><summary>View details</summary><p>A calculus textbook with a few highlighted pages.</p></details>
+            </div>
+          </article>
+          <article class="listing-card" id="electronics" tabindex="-1">
+            <div class="listing-content">
+            <p class="item-category">Electronics</p>
+            <div class="listing-heading"><h3>Wireless headphones</h3><p class="item-price">$30.00</p></div>
+            <p class="item-meta"><span class="condition-badge condition-like-new" aria-label="Condition: Like new">Like new</span><span class="item-location">Waterloo</span></p>
+            <details class="item-details"><summary>View details</summary><p>Headphones for studying and commuting.</p></details>
+            </div>
+          </article>
+          <article class="listing-card" id="school-supplies" tabindex="-1">
+            <div class="listing-content">
+            <p class="item-category">School Supplies</p>
+            <div class="listing-heading"><h3>Notebook and pen set</h3><p class="item-price">$8.00</p></div>
+            <p class="item-meta"><span class="condition-badge condition-new" aria-label="Condition: New">New</span><span class="item-location">Kitchener</span></p>
+            <details class="item-details"><summary>View details</summary><p>Three notebooks and a pack of pens.</p></details>
+            </div>
+          </article>
+          <article class="listing-card">
+            <div class="listing-content">
+            <p class="item-category">Furniture</p>
+            <div class="listing-heading"><h3>Desk chair</h3><p class="item-price">$40.00</p></div>
+            <p class="item-meta"><span class="condition-badge condition-good" aria-label="Condition: Good">Good</span><span class="item-location">Waterloo</span></p>
+            <details class="item-details"><summary>View details</summary><p>An adjustable chair for a student desk.</p></details>
+            </div>
+          </article>
+          <article class="listing-card" id="more" tabindex="-1">
+            <div class="listing-content">
+            <p class="item-category">More</p>
+            <div class="listing-heading"><h3>Everyday backpack</h3><p class="item-price">$15.00</p></div>
+            <p class="item-meta"><span class="condition-badge condition-good" aria-label="Condition: Good">Good</span><span class="item-location">Kitchener</span></p>
+            <details class="item-details"><summary>View details</summary><p>A backpack with a padded laptop compartment.</p></details>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="about-section" id="about" tabindex="-1" aria-labelledby="about-title">
+        <div><p class="eyebrow">ABOUT STUDENTMARKET</p><h2 id="about-title">Made for student life</h2></div>
+        <p>Find affordable essentials and sell the items you no longer need. StudentMarket connects university students across Canada with buyers and sellers in their school communities and nearby areas.</p>
+      </section>
+
+      <section class="guides" id="how-it-works" tabindex="-1" aria-labelledby="guides-title">
+        <p class="eyebrow">GETTING STARTED</p>
+        <h2 id="guides-title">A simple way to buy and sell</h2>
+        <div class="guide-grid">
+          <article class="guide" id="buying-tips" tabindex="-1">
+            <h3>Shopping for essentials</h3>
+            <p>Compare the price, condition, and pickup area before arranging a purchase. For textbooks, check the edition and course requirements so you can find the right book for your class.</p>
+          </article>
+          <article class="guide" id="selling-tips" tabindex="-1">
+            <h3>Preparing a listing</h3>
+            <p>Use clear photos and an accurate description. Include the item's condition, price, and general pickup area so other students know what to expect.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="faq-section" id="faq" tabindex="-1" aria-labelledby="faq-title">
+        <div><p class="eyebrow">HERE TO HELP</p><h2 id="faq-title">Frequently asked questions</h2></div>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>Who is StudentMarket for?</summary>
+            <p>StudentMarket is designed for university students across Canada who want to buy and sell items within their school communities and nearby areas.</p>
+          </details>
+          <details class="faq-item">
+            <summary>What can I find on StudentMarket?</summary>
+            <p>Explore furniture, textbooks, electronics, school supplies, and other everyday essentials for student life. Each item card shows its price, condition, and location.</p>
+          </details>
+          <details class="faq-item">
+            <summary>What details should I include in a listing?</summary>
+            <p>Include a clear title, photos, price, condition, and an accurate description. Add your school or general pickup area, and mention any wear, damage, or missing parts.</p>
+          </details>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="logo" href="#top" aria-label="StudentMarket home">Student<span>Market</span></a>
+          <p>A marketplace for student essentials, built around your campus and the communities nearby.</p>
+        </div>
+        <nav class="footer-group" aria-labelledby="footer-marketplace">
+          <h2 id="footer-marketplace">Marketplace</h2>
+          <ul class="footer-links">
+            <li><a href="#furniture">Furniture</a></li>
+            <li><a href="#textbooks">Textbooks</a></li>
+            <li><a href="#electronics">Electronics</a></li>
+            <li><a href="#school-supplies">School Supplies</a></li>
+            <li><a href="#more">More items</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-group" aria-labelledby="footer-community">
+          <h2 id="footer-community">StudentMarket</h2>
+          <ul class="footer-links">
+            <li><a href="#about">About us</a></li>
+            <li><a href="#how-it-works">How it works</a></li>
+            <li><a href="#listings">Browse all items</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-group" aria-labelledby="footer-help">
+          <h2 id="footer-help">Help</h2>
+          <ul class="footer-links">
+            <li><a href="#faq">Frequently asked questions</a></li>
+            <li><a href="#buying-tips">Buying tips</a></li>
+            <li><a href="#selling-tips">Selling tips</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 StudentMarket</p>
+        <a href="#top">Back to top ↑</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
