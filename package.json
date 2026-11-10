@@ -1,0 +1,12 @@
+  {
+    "name": "studentmarket",
+    "version": "1.0.0",
+    "scripts": { "start": "node server.js" },
+    "dependencies": {
+      "express": "latest",
+      "express-session": "latest",
+      "better-sqlite3": "latest",
+      "bcryptjs": "latest",
+      "multer": "latest"
+    }
+  }
