@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>StudentMarket | Sign In</title>
+<style>
+  :root{--navy:#182d4b;--blue:#315b88;--gold:#e4a84b;--ink:#202938;--muted:#687386;--line:#dce2e9;--paper:#f5f7fa;--white:#fff;--bad:#b00020;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  html{scroll-padding-top:env(safe-area-inset-top,0px)}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--paper);line-height:1.5}
+  a{color:inherit}
+  .site-header{background:var(--navy);color:var(--white)}
+  .nav{max-width:1180px;margin:auto;padding:17px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+  .brand{font-size:1.35rem;font-weight:800;letter-spacing:-.03em;text-decoration:none}
+  .nav-links{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .nav-links a{color:var(--white);text-decoration:none;font-size:.95rem}
+  .nav-links a:hover,.nav-links a:focus{text-decoration:underline}
+  main{max-width:520px;margin:32px auto 50px;padding:0 16px}
+  .panel{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:28px}
+  .eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.75rem;font-weight:700;color:var(--blue);margin:0 0 6px}
+  h1{font-size:1.8rem;line-height:1.15;margin:0 0 6px}
+  .lead{color:var(--muted);margin:0 0 20px}
+  label{display:block;font-weight:700;font-size:.9rem;margin:14px 0 6px}
+  input,select,button{font:inherit}
+  input,select{width:100%;border:1px solid #cbd3de;border-radius:8px;padding:11px;background:#fff;color:var(--ink)}
+  input:focus,select:focus,button:focus-visible,a:focus-visible{outline:3px solid #f0bd6c;outline-offset:2px}
+  .invalid{border-color:var(--bad)}
+  .error{color:var(--bad);font-size:.83rem;min-height:18px;margin-top:4px}
+  .hint{color:var(--muted);font-size:.83rem;margin-top:4px}
+  .pw{position:relative}
+  .pw input{padding-right:72px}
+  .pw button{position:absolute;right:5px;top:5px;bottom:5px;border:0;border-radius:6px;background:#e9eef5;color:var(--navy);padding:0 12px;font-weight:700;font-size:.85rem;cursor:pointer}
+  .primary{width:100%;margin-top:18px;border:0;border-radius:9px;padding:13px 17px;background:var(--gold);color:#17263b;font-weight:700;cursor:pointer}
+  .primary:hover{background:#f0bd6c}
+  #result{display:none;margin-top:18px;padding:14px;background:#e6f6ec;color:#17663a;border-radius:8px}
+  @media (max-width:650px){.nav{align-items:flex-start;flex-direction:column}.panel{padding:22px 18px}main{margin-top:20px}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="nav" aria-label="Main navigation">
+    <a class="brand" href="/index.html" aria-label="StudentMarket home">StudentMarket</a>
+    <div class="nav-links">
+      <a href="/index.html">Home</a>
+      <a href="/search.html">Browse listings</a>
+      <a href="/create-listing.html">Create a listing</a>
+      <a href="/signup.html">Create account</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <section class="panel" aria-labelledby="page-title">
+    <p class="eyebrow">Student-to-student marketplace</p>
+    <h1 id="page-title">Sign in</h1>
+    <p class="lead">Welcome back. Sign in to post listings and contact sellers.</p>
+
+    <form id="loginForm" novalidate>
+      <label for="username">Username</label>
+      <input id="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false">
+      <div class="error" id="e-username"></div>
+
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password">
+      <div class="error" id="e-password"></div>
+
+      <button class="primary" type="submit">Sign in</button>
+    </form>
+    <p class="hint" style="margin-top:14px">No account yet? <a href="/signup.html">Create one</a>.</p>
+    <div id="result" role="status"></div>
+  </section>
+</main>
+
+<script>
+  // Sends the credentials to POST /api/login (server.js). On success the server sets a session cookie.
+  const $ = id => document.getElementById(id);
+
+  function setError(id, msg) {
+    $('e-' + id).textContent = msg;
+    $(id).classList.toggle('invalid', !!msg);
+    return msg === '';
+  }
+
+  // Only follow ?next= if it is a path on this site (prevents redirecting to other websites).
+  function nextPage() {
+    const next = new URLSearchParams(window.location.search).get('next');
+    return next && next.startsWith('/') && !next.startsWith('//') ? next : '/search.html';
+  }
+
+  $('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const user = $('username').value.trim();
+    const pw = $('password').value;
+
+    let ok = true;
+    ok = setError('username', user ? '' : 'Enter your username.') && ok;
+    ok = setError('password', pw ? '' : 'Enter your password.') && ok;
+    if (!ok) return;
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user, password: pw })
+      });
+      const data = await res.json();
+      if (!res.ok) { setError('password', data.error || 'Could not sign in.'); return; }
+      window.location.href = nextPage();
+    } catch (err) {
+      const r = $('result');
+      r.style.display = 'block';
+      r.textContent = 'Could not reach the server. Is it running (node server.js)?';
+    }
+  });
+</script>
+</body>
+</html>

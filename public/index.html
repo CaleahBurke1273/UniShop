@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="StudentMarket is a marketplace for university students to buy and sell everyday essentials within their communities.">
+  <title>StudentMarket | Student Marketplace</title>
+
+  
+  <style>
+    
+    :root {
+      --text: #26342f;
+      --muted: #5d6862;
+      --green: #315b49;
+      --green-dark: #264236;
+      --mint: #edf7f1;
+      --light: #f3f6f3;
+      --border: #dce3dd;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: white; color: var(--text); font: 16px/1.6 Arial, Helvetica, sans-serif; }
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    h1, h2, h3, p { margin-top: 0; }
+    h2 { font-size: 27px; line-height: 1.25; font-weight: 600; letter-spacing: -.6px; }
+    a:focus-visible, summary:focus-visible, button:focus-visible,
+    input:focus-visible, [tabindex="-1"]:focus-visible { outline: 3px solid #315da8; outline-offset: 4px; }
+    .site-header, main, footer { width: min(1140px, 90%); margin: auto; }
+    .eyebrow { margin: 0 0 14px; color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: 1.5px; }
+    .skip-link { position: absolute; top: -100px; left: 12px; padding: 12px; background: white; z-index: 10; }
+    .skip-link:focus { top: 12px; }
+
+    
+    .site-header { display: flex; align-items: center; justify-content: space-between; gap: 22px; padding: 23px 0; border-bottom: 1px solid var(--border); }
+    .logo { font-size: 22px; font-weight: 700; letter-spacing: -.8px; white-space: nowrap; }
+    .logo span { color: var(--green); }
+    .main-nav, .account-buttons { display: flex; align-items: center; gap: 28px; }
+    .main-nav a, .main-nav summary { font-size: 14px; }
+    .main-nav a:hover, .main-nav summary:hover { color: var(--green); text-decoration: underline; text-underline-offset: 5px; }
+    .account-buttons { gap: 10px; }
+    .button { display: inline-block; padding: 10px 20px; border: 1px solid var(--green); border-radius: 5px; font-size: 13px; font-weight: 600; }
+    .primary { background: var(--green); color: white; }
+    .primary:hover { background: var(--green-dark); }
+    .outline { background: white; color: var(--green); border-color: #9aaea1; }
+    .outline:hover { background: var(--light); }
+    .menu-disclosure { position: relative; }
+    .menu-disclosure > summary { display: block; cursor: pointer; list-style: none; }
+    .menu-disclosure > summary::-webkit-details-marker { display: none; }
+    .menu-disclosure[open] > summary { outline: 2px solid var(--green); outline-offset: 3px; }
+    .menu-panel { position: absolute; right: 0; top: calc(100% + 14px); width: 245px; padding: 18px; background: white; border: 1px solid var(--border); border-radius: 5px; box-shadow: 0 6px 20px #26342f15; z-index: 5; font-size: 13px; }
+    .menu-panel h2 { margin-bottom: 8px; font-size: 18px; }
+    .menu-panel p { margin: 0; color: var(--muted); }
+
+    
+    .hero { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 48px; padding: 42px; margin: 28px 0; background: var(--mint); border-radius: 6px; }
+    .hero-copy { min-width: 0; }
+    .hero-title { margin: 18px 0 22px; font-size: clamp(38px, 4.7vw, 60px); font-weight: 700; line-height: 1.12; letter-spacing: -1.8px; }
+    .hero-title span { display: block; color: var(--green); }
+    .hero-description { max-width: 440px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.8; }
+    .hero-search { min-width: 0; padding: 26px; background: white; border: 1px solid var(--border); border-radius: 5px; }
+    .hero-search h2 { margin: 0 0 22px; font-size: 24px; letter-spacing: -.5px; }
+    .search-label { display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px; }
+    .search-area { display: flex; gap: 8px; padding: 5px; background: white; border: 1px solid #9dab9f; border-radius: 5px; }
+    .search-area input { min-width: 0; width: 100%; padding: 8px 10px; border: 0; background: white; font-size: 13px; }
+    .search-area input::placeholder { color: var(--muted); opacity: 1; }
+    .search-area button { flex-shrink: 0; background: #607567; color: white; border-color: #607567; }
+    .search-area :disabled { cursor: not-allowed; opacity: 1; }
+    .search-note { margin: 10px 0 0; color: var(--muted); font-size: 12px; }
+    .browse-link { display: inline-block; margin-top: 20px; color: var(--green); font-size: 13px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+    
+    .marketplace-layout { display: grid; grid-template-columns: 205px minmax(0, 1fr); gap: 34px; margin: 36px 0 40px; }
+    .categories { align-self: start; padding-right: 22px; border-right: 1px solid var(--border); }
+    .categories h2 { margin-bottom: 10px; font-size: 18px; letter-spacing: -.2px; }
+    .category-list { list-style: none; margin: 0; padding: 0; }
+    .category-list a { display: block; padding: 10px 12px; border-left: 2px solid transparent; color: var(--muted); font-size: 13px; }
+    .category-list a:hover, .category-list a:focus-visible { border-left-color: var(--green); background: var(--light); color: var(--green); }
+    .help-text { color: var(--muted); font-size: 12px; }
+
+    
+    #listings, #about, .listing-card { scroll-margin-top: 24px; }
+    .listings { min-width: 0; }
+    .listings h2 { margin-bottom: 12px; }
+    .listing-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 22px; }
+    .listing-card { min-width: 0; padding: 22px; border: 1px solid var(--border); border-radius: 7px; }
+    .listing-card:target { outline: 2px solid var(--green); outline-offset: 3px; }
+    .listing-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+    .listing-heading h3 { margin: 0; font-size: 18px; font-weight: 600; overflow-wrap: anywhere; }
+    .item-category { margin: 0 0 10px; color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    .item-price { flex-shrink: 0; margin: 0; color: var(--green); font-size: 21px; font-weight: 600; }
+    .listing-card .help-text { margin: 10px 0 18px; }
+    .item-details summary { width: fit-content; color: var(--green); cursor: pointer; font-size: 13px; font-weight: 600; }
+    .item-details p { margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+
+    
+    .about-section { display: grid; grid-template-columns: 1fr 1.2fr; align-items: center; gap: 55px; padding: 32px; background: var(--light); border: 1px solid var(--border); border-radius: 6px; }
+    .about-section h2, .about-section > p { margin-bottom: 0; }
+    .about-section > p { color: var(--muted); font-size: 13px; line-height: 1.8; }
+    footer { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-top: 30px; padding: 22px 0; border-top: 1px solid var(--border); }
+    footer .logo { font-size: 18px; }
+
+    
+    @media (max-width: 1000px) {
+      .hero { padding: 32px; gap: 28px; }
+      .hero-search { padding: 22px; }
+      .marketplace-layout { grid-template-columns: 180px minmax(0, 1fr); gap: 24px; }
+      .listing-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      .site-header { position: relative; flex-wrap: wrap; gap: 16px; }
+      .main-nav { order: 3; justify-content: center; width: 100%; }
+      .menu-disclosure { position: static; }
+      .menu-panel { top: calc(100% + 8px); right: 0; width: min(280px, 100%); }
+      .hero { grid-template-columns: 1fr; margin: 22px 0; padding: 28px 20px; gap: 28px; }
+      .hero-title { font-size: clamp(38px, 7vw, 52px); letter-spacing: -1px; }
+      .hero-search { padding: 20px; }
+      .hero-search h2 { font-size: 21px; }
+      .marketplace-layout { grid-template-columns: 1fr; gap: 28px; margin-top: 28px; }
+      .categories { padding: 0 0 20px; border-right: 0; border-bottom: 1px solid var(--border); }
+      .category-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+      .category-list a { padding: 8px 10px; }
+      .about-section { grid-template-columns: 1fr; gap: 20px; padding: 24px; }
+      footer { flex-direction: column; gap: 14px; }
+    }
+    @media (max-width: 380px) {
+      .site-header { justify-content: center; }
+      .search-area .button { padding: 10px 12px; }
+      .listing-card { padding: 18px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" id="top" tabindex="-1">
+    <a class="logo" href="/index.html" aria-label="StudentMarket home">Student<span>Market</span></a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="/search.html">Browse</a>
+      
+      <a href="/create-listing.html">Sell</a>
+      <a href="#about">About</a>
+    </nav>
+    <div class="account-buttons">
+      
+      <a class="button outline" id="loginLink" href="/login.html">Log In</a>
+      <a class="button primary" id="signupLink" href="/signup.html">Sign Up</a>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section class="hero" aria-labelledby="welcome-title">
+      <div class="hero-copy">
+        <p class="eyebrow">YOUR CAMPUS, YOUR COMMUNITY</p>
+        <h1 class="hero-title" id="welcome-title">Good finds<span>Small prices</span></h1>
+        <p class="hero-description">Buy and sell the things you need for student life, from textbooks and technology to furniture for your space</p>
+      </div>
+      <div class="hero-search">
+        <p class="eyebrow">EXPLORE THE MARKETPLACE</p>
+        <h2>Find your next essential</h2>
+        <label class="search-label" for="item-search">What are you looking for?</label>
+        <form class="search-area" action="/search.html" method="get" role="search" aria-label="Search listings">
+          <input id="item-search" name="q" type="search" placeholder="Search for an item...">
+          <button class="button" type="submit">Search</button>
+        </form>
+        <a class="browse-link" href="/search.html">Browse all items</a>
+      </div>
+    </section>
+
+    <div class="marketplace-layout">
+      <aside class="categories" aria-labelledby="categories-title">
+        <h2 id="categories-title">Categories</h2>
+        <p class="help-text">Explore by category</p>
+        <nav aria-label="Item categories">
+          <ul class="category-list">
+            <li><a href="/search.html">All items</a></li>
+            <li><a href="/search.html?category=Furniture">Furniture</a></li>
+            <li><a href="/search.html?category=Textbooks">Textbooks</a></li>
+            <li><a href="/search.html?category=Electronics">Electronics</a></li>
+            <li><a href="/search.html?category=School%20supplies">School Supplies</a></li>
+            <li><a href="/search.html?category=Clothing">Clothing</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <section class="listings" id="listings" tabindex="-1" aria-labelledby="listings-title">
+        <p class="eyebrow">BROWSE THE MARKETPLACE</p>
+        <h2 id="listings-title">Explore listings</h2>
+        <p class="help-text">Newest listings · Prices in Canadian dollars</p>
+        <div class="listing-grid" id="listingGrid">
+          <p class="help-text">Loading listings...</p>
+        </div>
+      </section>
+    </div>
+
+    <section class="about-section" id="about" tabindex="-1" aria-labelledby="about-title">
+      <div><p class="eyebrow">ABOUT STUDENTMARKET</p><h2 id="about-title">Made for student life</h2></div>
+      <p>Find affordable essentials and sell the items you no longer need. StudentMarket connects university students across Canada with buyers and sellers in their school communities and nearby areas.</p>
+    </section>
+  </main>
+
+  <footer>
+    <a class="logo" href="#top" aria-label="StudentMarket — back to top">Student<span>Market</span></a>
+  </footer>
+
+  <script>
+    // Newest listings come from the database (GET /api/listings in server.js).
+    // Text is added with textContent, never innerHTML, so listing text can't inject HTML.
+    (async function () {
+      const grid = document.getElementById('listingGrid');
+      try {
+        const res = await fetch('/api/listings?sort=newest&hideSold=1&limit=6');
+        const items = await res.json();
+        grid.replaceChildren();
+        if (!items.length) {
+          const p = document.createElement('p');
+          p.className = 'help-text';
+          p.textContent = 'No listings yet. Be the first to sell something!';
+          grid.append(p);
+          return;
+        }
+        items.forEach(item => {
+          const card = document.createElement('article');
+          card.className = 'listing-card';
+          const cat = document.createElement('p');
+          cat.className = 'item-category';
+          cat.textContent = item.category;
+          const heading = document.createElement('div');
+          heading.className = 'listing-heading';
+          const h3 = document.createElement('h3');
+          h3.textContent = item.title;
+          const price = document.createElement('p');
+          price.className = 'item-price';
+          price.textContent = '$' + Number(item.price).toFixed(2);
+          heading.append(h3, price);
+          const meta = document.createElement('p');
+          meta.className = 'help-text';
+          meta.textContent = item.condition + ' · ' + item.school;
+          const details = document.createElement('details');
+          details.className = 'item-details';
+          const summary = document.createElement('summary');
+          summary.textContent = 'View details';
+          const desc = document.createElement('p');
+          desc.textContent = item.description;
+          details.append(summary, desc);
+          card.append(cat, heading, meta, details);
+          grid.append(card);
+        });
+      } catch (err) {
+        grid.textContent = 'Listings could not be loaded. Is the server running (node server.js)?';
+      }
+    })();
+
+    // If signed in, swap Log In / Sign Up for the username and a Log out button.
+    (async function () {
+      try {
+        const res = await fetch('/api/me');
+        if (!res.ok) return;
+        const me = await res.json();
+        const login = document.getElementById('loginLink');
+        const signup = document.getElementById('signupLink');
+        login.textContent = me.username;
+        login.removeAttribute('href');
+        signup.textContent = 'Log out';
+        signup.href = '#';
+        signup.addEventListener('click', async e => {
+          e.preventDefault();
+          await fetch('/api/logout', { method: 'POST' });
+          window.location.reload();
+        });
+      } catch (err) { /* not signed in */ }
+    })();
+  </script>
+</body>
+</html>

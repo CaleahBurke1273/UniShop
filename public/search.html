@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudentMarket | Search Listings</title>
+  <style>
+    :root {
+      --navy: #182d4b;
+      --blue: #315b88;
+      --gold: #e4a84b;
+      --ink: #202938;
+      --muted: #687386;
+      --line: #dce2e9;
+      --paper: #f5f7fa;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: var(--ink); background: var(--paper); line-height: 1.5; }
+    a { color: inherit; }
+    .site-header { background: var(--navy); color: var(--white); }
+    .nav { max-width: 1180px; margin: auto; padding: 17px 22px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { font-size: 1.35rem; font-weight: 800; letter-spacing: -.03em; text-decoration: none; }
+    .nav-links { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .nav-links a { color: var(--white); text-decoration: none; font-size: .95rem; }
+    .nav-links a:hover, .nav-links a:focus { text-decoration: underline; }
+    main { max-width: 1180px; margin: auto; padding: 32px 22px 50px; }
+    .hero { background: var(--navy); color: var(--white); border-radius: 18px; padding: 30px; margin-bottom: 28px; }
+    .eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: .75rem; font-weight: 700; color: #dbe5f1; margin: 0 0 8px; }
+    h1 { font-size: clamp(1.8rem, 4vw, 2.7rem); line-height: 1.1; margin: 0 0 10px; }
+    .hero p { color: #e5ebf3; margin: 0 0 20px; }
+    .search-row { display: flex; gap: 10px; max-width: 800px; }
+    input, select, button { font: inherit; }
+    input[type="search"] { flex: 1; min-width: 0; border: 2px solid transparent; border-radius: 9px; padding: 13px 14px; background: white; color: var(--ink); }
+    input:focus, select:focus, button:focus-visible, a:focus-visible { outline: 3px solid #f0bf6d; outline-offset: 2px; }
+    button { border: 0; border-radius: 9px; padding: 12px 17px; cursor: pointer; font-weight: 700; }
+    .primary { background: var(--gold); color: #17263b; }
+    .primary:hover { background: #f0bd6c; }
+    .secondary { background: #e9eef5; color: var(--navy); }
+    .layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 24px; align-items: start; }
+    .filters, .results-panel { background: var(--white); border: 1px solid var(--line); border-radius: 14px; }
+    .filters { padding: 20px; }
+    .filters h2, .results-panel h2 { margin: 0; font-size: 1.15rem; }
+    .filter-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 17px; }
+    .filter-group { margin-bottom: 17px; }
+    label { display: block; font-weight: 700; font-size: .9rem; margin-bottom: 6px; }
+    select, input[type="number"] { width: 100%; border: 1px solid #cbd3de; border-radius: 8px; padding: 10px; background: white; color: var(--ink); }
+    .price-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .check-row { display: flex; align-items: center; gap: 8px; margin: 7px 0; }
+    .check-row label { margin: 0; font-weight: 400; }
+    .check-row input { width: 16px; height: 16px; }
+    .filter-actions { display: flex; gap: 8px; }
+    .filter-actions button { flex: 1; padding: 10px 8px; }
+    .results-panel { padding: 20px; min-width: 0; }
+    .results-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 17px; }
+    .results-tools { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    #resultCount { color: var(--muted); font-size: .9rem; }
+    .view-toggle { display: flex; gap: 6px; }
+    .view-toggle button { padding: 8px 11px; }
+    .view-toggle button[aria-pressed="true"] { background: var(--navy); color: white; }
+    .active-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+    .active-filters:empty { display: none; }
+    .filter-chip { display: inline-flex; align-items: center; gap: 7px; background: #edf3fa; color: #284d77; border-radius: 100px; padding: 5px 9px; font-size: .83rem; }
+    .filter-chip button { padding: 0; background: transparent; color: inherit; font-size: 1rem; line-height: 1; }
+    .filter-chip button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .card-topline { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .favorite-button { background: #f3f5f8; color: var(--navy); padding: 7px 10px; font-size: 1.15rem; line-height: 1; flex-shrink: 0; }
+    .favorite-button[aria-pressed="true"] { color: #b4233c; background: #fff0f2; }
+    .favorite-button:hover { background: #e7edf5; }
+    .cards.list-view { grid-template-columns: 1fr; }
+    .cards.list-view .card { flex-direction: row; }
+    .cards.list-view .item-image { min-width: 130px; width: 130px; }
+    .cards.list-view .card-content { min-width: 0; }
+    .empty button { margin-top: 12px; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
+    .card { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; background: white; }
+    .item-image { min-height: 135px; display: grid; place-items: center; background: #edf1f6; color: var(--navy); font-size: 2.8rem; overflow: hidden; }
+    .item-image img { width: 100%; height: 180px; object-fit: cover; object-position: center; display: block; transition: transform .25s ease; }
+    .card:hover .item-image img { transform: scale(1.035); }
+    .item-image { min-height: 180px; background: #f4f6f8; }
+    .status-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 7px; }
+    .status-badge { display: inline-block; border-radius: 100px; padding: 3px 8px; font-size: .73rem; font-weight: 700; }
+    .verified-badge { background: #e6f6ec; color: #17663a; }
+    .available-badge { background: #e6f6ec; color: #17663a; }
+    .sold-badge { background: #fbe8e8; color: #922b2b; }
+    .sold-card { opacity: .78; }
+    .check-row { display: flex; align-items: center; gap: 8px; margin: 7px 0; }
+    .check-row label { margin: 0; font-weight: 400; }
+    .check-row input { width: 16px; height: 16px; }
+    .card-content { padding: 14px; display: flex; flex-direction: column; flex: 1; }
+    .tag { display: inline-block; align-self: flex-start; background: #edf3fa; color: #284d77; padding: 3px 8px; border-radius: 100px; font-size: .75rem; margin-bottom: 8px; }
+    .card h3 { font-size: 1rem; margin: 0 0 6px; overflow-wrap: anywhere; }
+    .price { font-size: 1.2rem; font-weight: 800; margin: 0 0 7px; }
+    .meta { color: var(--muted); font-size: .86rem; margin: 0 0 5px; }
+    .description { font-size: .88rem; margin: 7px 0 13px; }
+    .card .secondary { margin-top: auto; }
+    .empty { border: 1px dashed #b9c4d1; border-radius: 10px; padding: 30px 18px; text-align: center; color: var(--muted); grid-column: 1 / -1; }
+    .empty strong { display: block; color: var(--ink); margin-bottom: 5px; }
+    .notice { margin-top: 16px; color: var(--muted); font-size: .83rem; }
+    .action-row { display:flex; gap:8px; margin-top:10px; }
+    .action-row button { flex:1; padding:9px 8px; font-size:.85rem; }
+    .report-button { background:#fff0f0; color:#8b2525; }
+    dialog { border:0; border-radius:14px; width:min(560px, calc(100% - 28px)); max-height:85vh; overflow:auto; padding:24px; box-shadow:0 18px 60px #10243b55; color:var(--ink); }
+    dialog::backdrop { background:#101d2bcc; }
+    dialog h2 { margin-top:0; }
+    .dialog-form { display:grid; gap:12px; }
+    .dialog-form label { margin-bottom:4px; }
+    .dialog-form input, .dialog-form select, .dialog-form textarea { width:100%; border:1px solid #cbd3de; border-radius:8px; padding:10px; font:inherit; }
+    .dialog-form textarea { min-height:90px; resize:vertical; }
+    .dialog-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:6px; }
+    .detail-photo { width:100%; max-height:260px; object-fit:cover; border-radius:10px; background:#edf1f6; }
+    .form-note { color:var(--muted); font-size:.82rem; margin:0; }
+    footer { text-align: center; padding: 22px; color: var(--muted); font-size: .85rem; }
+    @media (max-width: 900px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 650px) {
+      .nav { align-items: flex-start; flex-direction: column; }
+      main { padding: 22px 14px 35px; }
+      .hero { padding: 23px 18px; }
+      .search-row { flex-direction: column; }
+      .layout { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr; }
+      .cards.list-view .card { flex-direction: column; }
+      .cards.list-view .item-image { width: 100%; min-width: 0; min-height: 115px; }
+      .item-image { min-height: 115px; }
+      .results-heading { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="/index.html" aria-label="StudentMarket home">StudentMarket</a>
+      <div class="nav-links">
+        <a href="/index.html">Home</a>
+        <a href="#listings">Browse listings</a>
+        <a href="/create-listing.html">Create a listing</a>
+        <a href="/login.html">Sign in</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">Student-to-student marketplace</p>
+      <h1 id="page-title">Find what you need.</h1>
+      <p>Search affordable items from students in your school community.</p>
+      <form id="searchForm" class="search-row" role="search">
+        <label for="keyword" class="visually-hidden" style="position:absolute;left:-9999px">Search listings by keyword</label>
+        <input id="keyword" type="search" placeholder="Try “textbook”, “desk” or “calculator”" autocomplete="off">
+        <button class="primary" type="submit">Search listings</button>
+      </form>
+    </section>
+
+    <div class="layout">
+      <aside class="filters" aria-labelledby="filter-title">
+        <div class="filter-heading">
+          <h2 id="filter-title">Filter results</h2>
+          <button id="clearFilters" type="button" class="secondary">Clear</button>
+        </div>
+        <div class="filter-group">
+          <label for="category">Category</label>
+          <select id="category">
+            <option value="">All categories</option>
+            <option value="Textbooks">Textbooks</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Electronics">Electronics</option>
+            <option value="School supplies">School supplies</option>
+            <option value="Clothing">Clothing</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="school">School / area</label>
+          <select id="school">
+            <option value="">All schools / areas</option>
+            <option value="Wilfrid Laurier University">Wilfrid Laurier University</option>
+            <option value="University of Waterloo">University of Waterloo</option>
+            <option value="Waterloo">Waterloo area</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Price range (CAD)</label>
+          <div class="price-row">
+            <div><label for="minPrice">Minimum</label><input id="minPrice" type="number" min="0" placeholder="$0"></div>
+            <div><label for="maxPrice">Maximum</label><input id="maxPrice" type="number" min="0" placeholder="No limit"></div>
+          </div>
+        </div>
+        <div class="filter-group">
+          <label for="condition">Condition</label>
+          <select id="condition">
+            <option value="">Any condition</option>
+            <option value="New">New</option>
+            <option value="Like new">Like new</option>
+            <option value="Used - good">Used - good</option>
+            <option value="Used - fair">Used - fair</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="sort">Sort by</label>
+          <select id="sort">
+            <option value="recommended">Recommended</option>
+            <option value="price-low">Price: low to high</option>
+            <option value="price-high">Price: high to low</option>
+            <option value="title">Item name: A–Z</option>
+            <option value="newest">Newest first</option>
+          </select>
+        </div>
+        <div class="check-row"><input id="hideSold" type="checkbox" checked><label for="hideSold">Hide sold items</label></div>
+        <div class="filter-actions">
+          <button id="applyFilters" class="primary" type="button">Apply filters</button>
+        </div>
+        <p class="notice">Your school and area filters use the listing's displayed community. This demo does not access your device location.</p>
+      </aside>
+
+      <section id="listings" class="results-panel" aria-labelledby="results-title">
+        <div class="results-heading">
+          <div>
+            <h2 id="results-title">Available listings</h2>
+            <div id="resultCount" aria-live="polite">Showing listings</div>
+          </div>
+        </div>
+        <div class="results-tools">
+          <div id="activeFilters" class="active-filters" aria-label="Active filters"></div>
+          <div class="view-toggle" aria-label="Listing display mode">
+            <button id="gridView" class="secondary" type="button" aria-pressed="true">Grid view</button>
+            <button id="listView" class="secondary" type="button" aria-pressed="false">List view</button>
+          </div>
+        </div>
+        <div id="cards" class="cards"></div>
+        <p class="notice">Listings are loaded from the StudentMarket database. Student verification and seller messaging will be added in a later sprint.</p>
+      </section>
+    </div>
+  </main>
+  <footer>StudentMarket · A marketplace for student communities</footer>
+
+  <dialog id="detailsDialog" aria-labelledby="detailsTitle">
+    <h2 id="detailsTitle">Item details</h2>
+    <div id="detailsContent"></div>
+    <div class="dialog-actions"><button type="button" class="secondary" data-close="detailsDialog">Close</button><button type="button" class="primary" id="detailsContact">Contact seller (demo)</button></div>
+  </dialog>
+
+  <dialog id="reportDialog" aria-labelledby="reportTitle">
+    <h2 id="reportTitle">Report a listing</h2>
+    <p id="reportItemName"></p>
+    <form id="reportForm" class="dialog-form">
+      <label for="reportReason">Reason for report</label><select id="reportReason" required><option value="">Choose a reason</option><option>Potential scam or fraud</option><option>Possibly stolen item</option><option>Misleading description or price</option><option>Inappropriate content</option><option>Other concern</option></select>
+      <label for="reportDetails">Additional details (optional)</label><textarea id="reportDetails" maxlength="500" placeholder="Tell us what seems suspicious"></textarea>
+      <p class="form-note">Demo only: this report will be confirmed on this page but not sent to an administrator.</p>
+      <div class="dialog-actions"><button type="button" class="secondary" data-close="reportDialog">Cancel</button><button class="primary" type="submit">Submit report</button></div>
+    </form>
+  </dialog>
+
+  <script>
+    // Listings now come from the database through GET /api/listings (server.js).
+    const ICONS = { "Textbooks": "📚", "Furniture": "🪑", "Electronics": "🎧", "School supplies": "🧮", "Clothing": "🧥" };
+    let listings = [];
+
+    async function loadListings() {
+      try {
+        const res = await fetch("/api/listings");
+        listings = await res.json();
+        listings.forEach(item => { item.icon = ICONS[item.category]; });
+      } catch (error) { listings = []; }
+      // Add any school that appears in the data to the School filter.
+      const schoolSelect = document.getElementById("school");
+      const known = new Set(Array.from(schoolSelect.options).map(o => o.value));
+      [...new Set(listings.map(i => i.school))].sort().forEach(name => {
+        if (!known.has(name)) schoolSelect.add(new Option(name, name));
+      });
+      // Links from the homepage can pre-fill the search: /search.html?q=desk&category=Furniture
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("q")) document.getElementById("keyword").value = params.get("q");
+      if (params.get("category")) document.getElementById("category").value = params.get("category");
+      renderListings();
+    }
+
+    const $ = (id) => document.getElementById(id);
+    const form = $("searchForm");
+    const keyword = $("keyword");
+    const category = $("category");
+    const school = $("school");
+    const minPrice = $("minPrice");
+    const maxPrice = $("maxPrice");
+    const condition = $("condition");
+    const sort = $("sort");
+    const cards = $("cards");
+    const resultCount = $("resultCount");
+    const activeFilters = $("activeFilters");
+    const gridView = $("gridView");
+    const listView = $("listView");
+
+    // Favorites are saved in this browser so they remain after a refresh.
+    const favoriteStorageKey = "studentMarketFavorites";
+    let favorites = new Set();
+    try {
+      favorites = new Set(JSON.parse(localStorage.getItem(favoriteStorageKey) || "[]"));
+    } catch (error) {
+      favorites = new Set();
+    }
+    let displayMode = "grid";
+
+    function saveFavorites() {
+      try {
+        localStorage.setItem(favoriteStorageKey, JSON.stringify([...favorites]));
+      } catch (error) {
+        // Favorites still work for the current page session if browser storage is unavailable.
+      }
+    }
+
+    function getActiveFilterEntries() {
+      const entries = [];
+      if ($("hideSold").checked) entries.push({ key: "hideSold", label: "Hide sold items" });
+      if (keyword.value.trim()) entries.push({ key: "keyword", label: `Search: ${keyword.value.trim()}` });
+      if (category.value) entries.push({ key: "category", label: category.value });
+      if (school.value) entries.push({ key: "school", label: school.value === "Waterloo" ? "Waterloo area" : school.value });
+      if (minPrice.value !== "") entries.push({ key: "minPrice", label: `Min $${minPrice.value}` });
+      if (maxPrice.value !== "") entries.push({ key: "maxPrice", label: `Max $${maxPrice.value}` });
+      if (condition.value) entries.push({ key: "condition", label: condition.value });
+      return entries;
+    }
+
+    function renderActiveFilters() {
+      activeFilters.replaceChildren();
+      getActiveFilterEntries().forEach(entry => {
+        const chip = document.createElement("span");
+        chip.className = "filter-chip";
+        const label = document.createElement("span");
+        label.textContent = entry.label;
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.textContent = "×";
+        remove.setAttribute("aria-label", `Remove ${entry.label} filter`);
+        remove.addEventListener("click", () => {
+          if (entry.key === "hideSold") $("hideSold").checked = false;
+          if (entry.key === "keyword") keyword.value = "";
+          if (entry.key === "category") category.value = "";
+          if (entry.key === "school") school.value = "";
+          if (entry.key === "minPrice") minPrice.value = "";
+          if (entry.key === "maxPrice") maxPrice.value = "";
+          if (entry.key === "condition") condition.value = "";
+          renderListings();
+        });
+        chip.append(label, remove);
+        activeFilters.append(chip);
+      });
+    }
+
+    function renderListings() {
+      const query = keyword.value.trim().toLowerCase();
+      const min = minPrice.value === "" ? null : Number(minPrice.value);
+      const max = maxPrice.value === "" ? null : Number(maxPrice.value);
+
+      let matches = listings.filter(item => {
+        if ($("hideSold").checked && item.status === "Sold") return false;
+        const searchableText = `${item.title} ${item.category} ${item.description} ${item.condition} ${item.school} ${item.area}`.toLowerCase();
+        return (!query || searchableText.includes(query))
+          && (!category.value || item.category === category.value)
+          && (!school.value || item.school === school.value || (school.value === "Waterloo" && item.area === "Waterloo"))
+          && (min === null || item.price >= min)
+          && (max === null || item.price <= max)
+          && (!condition.value || item.condition === condition.value);
+      });
+
+      if (sort.value === "price-low") matches.sort((a, b) => a.price - b.price);
+      if (sort.value === "price-high") matches.sort((a, b) => b.price - a.price);
+      if (sort.value === "title") matches.sort((a, b) => a.title.localeCompare(b.title));
+      if (sort.value === "newest") matches.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      resultCount.textContent = `Showing ${matches.length} of ${listings.length} listings`;
+      renderActiveFilters();
+      cards.replaceChildren();
+      cards.classList.toggle("list-view", displayMode === "list");
+      gridView.setAttribute("aria-pressed", String(displayMode === "grid"));
+      listView.setAttribute("aria-pressed", String(displayMode === "list"));
+
+      if (matches.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        const heading = document.createElement("strong");
+        heading.textContent = "No matching listings found";
+        const message = document.createElement("span");
+        message.textContent = "Try removing a filter, increasing your price range, or using a different keyword.";
+        const clearButton = document.createElement("button");
+        clearButton.type = "button";
+        clearButton.className = "secondary";
+        clearButton.textContent = "Clear all filters";
+        clearButton.addEventListener("click", clearAllFilters);
+        empty.append(heading, message, clearButton);
+        cards.append(empty);
+        return;
+      }
+
+      matches.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "card";
+        const image = document.createElement("div");
+        image.className = "item-image";
+        image.setAttribute("role", "img");
+        image.setAttribute("aria-label", `${item.title} product photo`);
+        // Use emojis instead of external product image links.
+        image.textContent = item.icon || "📦";
+        if (item.image) {
+          const photo = document.createElement("img");
+          photo.src = item.image;
+          photo.alt = item.title;
+          photo.style.cssText = "width:100%;height:100%;object-fit:cover";
+          image.replaceChildren(photo);
+        }
+        image.classList.add("image-fallback");
+
+        const content = document.createElement("div");
+        content.className = "card-content";
+        const topLine = document.createElement("div");
+        topLine.className = "card-topline";
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = item.category;
+        const favoriteButton = document.createElement("button");
+        favoriteButton.className = "favorite-button";
+        favoriteButton.type = "button";
+        const isFavorite = favorites.has(String(item.id));
+        favoriteButton.textContent = isFavorite ? "♥" : "♡";
+        favoriteButton.setAttribute("aria-pressed", String(isFavorite));
+        favoriteButton.setAttribute("aria-label", isFavorite ? `Remove ${item.title} from favorites` : `Save ${item.title} to favorites`);
+        favoriteButton.title = isFavorite ? "Remove from favorites" : "Save to favorites";
+        favoriteButton.addEventListener("click", () => {
+          if (favorites.has(String(item.id))) favorites.delete(String(item.id));
+          else favorites.add(String(item.id));
+          saveFavorites();
+          renderListings();
+        });
+        topLine.append(tag, favoriteButton);
+
+        const title = document.createElement("h3");
+        title.textContent = item.title;
+        const price = document.createElement("p");
+        price.className = "price";
+        price.textContent = `$${item.price.toFixed(2)} CAD`;
+        const statusRow = document.createElement("div");
+        statusRow.className = "status-row";
+        const availabilityBadge = document.createElement("span");
+        availabilityBadge.className = `status-badge ${item.status === "Sold" ? "sold-badge" : "available-badge"}`;
+        availabilityBadge.textContent = item.status;
+        statusRow.append(availabilityBadge);
+        if (item.verified) {
+          const verifiedBadge = document.createElement("span");
+          verifiedBadge.className = "status-badge verified-badge";
+          verifiedBadge.textContent = "✓ Verified student";
+          statusRow.append(verifiedBadge);
+        }
+        const conditionText = document.createElement("p");
+        conditionText.className = "meta";
+        conditionText.textContent = `Condition: ${item.condition}`;
+        const locationText = document.createElement("p");
+        locationText.className = "meta";
+        locationText.textContent = `${item.school} · ${item.area}`;
+        const postedText = document.createElement("p");
+        postedText.className = "meta";
+        const daysOld = Math.max(0, Math.floor((new Date("2026-10-27T12:00:00") - new Date(`${item.createdAt}T12:00:00`)) / 86400000));
+        postedText.textContent = daysOld === 0 ? "Posted today" : daysOld === 1 ? "Posted yesterday" : `Posted ${daysOld} days ago`;
+        const description = document.createElement("p");
+        description.className = "description";
+        description.textContent = item.description;
+        const button = document.createElement("button");
+        button.className = "secondary";
+        button.type = "button";
+        button.textContent = "View details";
+        button.setAttribute("aria-label", `View details for ${item.title}`);
+        button.addEventListener("click", () => showDetails(item));
+        const reportButton = document.createElement("button");
+        reportButton.className = "report-button";
+        reportButton.type = "button";
+        reportButton.textContent = "Report";
+        reportButton.addEventListener("click", () => openReport(item));
+        const actionRow = document.createElement("div");
+        actionRow.className = "action-row";
+        actionRow.append(button, reportButton);
+        if (item.status === "Sold") card.classList.add("sold-card");
+        content.append(topLine, title, price, statusRow, conditionText, locationText, postedText, description, actionRow);
+        card.append(image, content);
+        cards.append(card);
+      });
+    }
+
+    function clearAllFilters() {
+      keyword.value = "";
+      category.value = "";
+      school.value = "";
+      minPrice.value = "";
+      maxPrice.value = "";
+      condition.value = "";
+      $("hideSold").checked = true;
+      sort.value = "recommended";
+      renderListings();
+    }
+
+    let selectedDetailsItem = null;
+    let selectedReportItem = null;
+    const detailsDialog = $("detailsDialog");
+    const reportDialog = $("reportDialog");
+
+    function showDetails(item) {
+      selectedDetailsItem = item;
+      const host = $("detailsContent");
+      host.replaceChildren();
+      const title = document.createElement("h3"); title.textContent = item.title;
+      const price = document.createElement("p"); price.className = "price"; price.textContent = `$${Number(item.price).toFixed(2)} CAD`;
+      const description = document.createElement("p"); description.textContent = item.description;
+      const info = document.createElement("p"); info.className = "meta"; info.textContent = `Condition: ${item.condition} · ${item.school} · ${item.area || "Waterloo"}`;
+      const posted = document.createElement("p"); posted.className = "meta"; posted.textContent = `Posted: ${item.createdAt || "Recently"} · Status: ${item.status || "Available"}`;
+      host.append(title, price, description, info, posted);
+      detailsDialog.showModal();
+    }
+    function openReport(item) {
+      selectedReportItem = item;
+      $("reportItemName").textContent = `Listing: ${item.title}`;
+      $("reportReason").value = "";
+      $("reportDetails").value = "";
+      reportDialog.showModal();
+    }
+    $("detailsContact").addEventListener("click", () => alert("Seller contact will be available once accounts and messaging are connected to the backend."));
+    document.querySelectorAll("[data-close]").forEach(btn => btn.addEventListener("click", () => $(btn.dataset.close).close()));
+    $("reportForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const report = { listingId: selectedReportItem?.id, listingTitle: selectedReportItem?.title, reason: $("reportReason").value, details: $("reportDetails").value.trim(), submittedAt: new Date().toISOString() };
+      try {
+        const reports = JSON.parse(localStorage.getItem("studentMarketDemoReports") || "[]");
+        reports.push(report); localStorage.setItem("studentMarketDemoReports", JSON.stringify(reports));
+      } catch (error) { /* Report confirmation still works for this session. */ }
+      reportDialog.close(); alert("Thanks. Your demo report has been saved in this browser, but it has not been sent to an administrator.");
+    });
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      renderListings();
+      $("listings").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    $("applyFilters").addEventListener("click", renderListings);
+    sort.addEventListener("change", renderListings);
+    $("clearFilters").addEventListener("click", clearAllFilters);
+    gridView.addEventListener("click", () => { displayMode = "grid"; renderListings(); });
+    listView.addEventListener("click", () => { displayMode = "list"; renderListings(); });
+    [category, school, minPrice, maxPrice, condition, $("hideSold")].forEach(control => {
+      control.addEventListener("change", renderListings);
+    });
+    [keyword, minPrice, maxPrice].forEach(control => {
+      control.addEventListener("input", renderListings);
+    });
+
+    // Load listings from the database on page load.
+    loadListings();
+  </script>
+</body>
+</html>
