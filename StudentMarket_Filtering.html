@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>StudentMarket | Listing Filter</title>
+<style>
+  :root{--navy:#182d4b;--blue:#315b88;--gold:#e4a84b;--ink:#202938;--muted:#687386;--line:#dce2e9;--paper:#f5f7fa;--white:#fff;--bad:#b00020;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  html{scroll-padding-top:env(safe-area-inset-top,0px)}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--paper);line-height:1.5}
+  a{color:inherit}
+  .site-header{background:var(--navy);color:var(--white)}
+  .nav{max-width:1180px;margin:auto;padding:17px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+  .brand{font-size:1.35rem;font-weight:800;letter-spacing:-.03em;text-decoration:none}
+  .nav-links{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .nav-links a{color:var(--white);text-decoration:none;font-size:.95rem}
+  .nav-links a:hover,.nav-links a:focus{text-decoration:underline}
+  main{max-width:520px;margin:32px auto 50px;padding:0 16px}
+  .panel{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:28px}
+  .eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.75rem;font-weight:700;color:var(--blue);margin:0 0 6px}
+  h1{font-size:1.8rem;line-height:1.15;margin:0 0 6px}
+  .lead{color:var(--muted);margin:0 0 20px}
+  label{display:block;font-weight:700;font-size:.9rem;margin:14px 0 6px}
+  input,select,button{font:inherit}
+  input,select{width:100%;border:1px solid #cbd3de;border-radius:8px;padding:11px;background:#fff;color:var(--ink)}
+  input:focus,select:focus,button:focus-visible,a:focus-visible{outline:3px solid #f0bd6c;outline-offset:2px}
+  .invalid{border-color:var(--bad)}
+  .error{color:var(--bad);font-size:.83rem;min-height:18px;margin-top:4px}
+  .hint{color:var(--muted);font-size:.83rem;margin-top:4px}
+  .pw{position:relative}
+  .pw input{padding-right:72px}
+  .pw button{position:absolute;right:5px;top:5px;bottom:5px;border:0;border-radius:6px;background:#e9eef5;color:var(--navy);padding:0 12px;font-weight:700;font-size:.85rem;cursor:pointer}
+  .primary{width:100%;margin-top:18px;border:0;border-radius:9px;padding:13px 17px;background:var(--gold);color:#17263b;font-weight:700;cursor:pointer}
+  .primary:hover{background:#f0bd6c}
+  #result{display:none;margin-top:18px;padding:14px;background:#e6f6ec;color:#17663a;border-radius:8px}
+  @media (max-width:650px){.nav{align-items:flex-start;flex-direction:column}.panel{padding:22px 18px}main{margin-top:20px}}
+  .step[hidden]{display:none}
+  .codebox{letter-spacing:.4em;font-size:1.4rem;text-align:center}
+  .ghost{background:none;border:0;color:var(--blue);font-weight:700;cursor:pointer;padding:8px 0;margin-top:8px}
+  .badge{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:2px 9px;margin-left:6px}
+  .b-flag{background:#fde8e8;color:#9b1c1c}.b-ok{background:#e6f6ec;color:#17663a}.b-gone{background:#eceff3;color:#4a5568}
+  .item{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+  .item.removed{opacity:.65}
+  .item h3{margin:0 0 4px;font-size:1.05rem}
+  .meta{color:var(--muted);font-size:.85rem;margin-bottom:8px}
+  .actions{display:flex;gap:10px;margin-top:10px}
+  .danger{background:#b00020;color:#fff;border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer}
+  .secondary{background:#e9eef5;color:var(--navy);border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer}
+  .toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}.toolbar input{flex:1;min-width:180px}.toolbar select{width:auto}
+  main.wide{max-width:860px}
+  main.filter-main{max-width:1180px}
+  .layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:22px;align-items:start}
+  .side{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px}
+  .side h2{font-size:1rem;margin:0 0 4px}
+  .group{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
+  .group:first-of-type{border-top:0;margin-top:0;padding-top:0}
+  .group legend,.group .glabel{font-weight:700;font-size:.9rem;margin-bottom:6px;padding:0}
+  fieldset{border:0;margin:0;padding:0}
+  .check{display:flex;align-items:center;gap:8px;font-size:.92rem;margin:5px 0}
+  .check input{width:auto;margin:0;accent-color:var(--navy)}
+  .price-row{display:flex;gap:8px;align-items:center}
+  .price-row input{min-width:0}
+  .side .primary{margin-top:14px;background:#e9eef5;color:var(--navy)}
+  .side .primary:hover{background:#dbe4ef}
+  .results-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .results-bar select{width:auto}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:6px}
+  .card h3{margin:0;font-size:1.02rem}
+  .price{font-size:1.25rem;font-weight:800;color:var(--navy)}
+  .tags{display:flex;gap:6px;flex-wrap:wrap}
+  .tag{font-size:.74rem;font-weight:700;background:#eef2f7;color:var(--navy);border-radius:999px;padding:3px 9px}
+  .card p{margin:0;color:var(--muted);font-size:.88rem}
+  .empty{background:#fff;border:1px dashed #cbd3de;border-radius:12px;padding:30px;text-align:center;color:var(--muted)}
+  @media (max-width:820px){.layout{grid-template-columns:1fr}}
+  .risk{font-size:.74rem;font-weight:800;border-radius:999px;padding:3px 10px;align-self:flex-start}
+  .r-high{background:#fde8e8;color:#9b1c1c}.r-medium{background:#fff1d6;color:#8a5a00}.r-low{background:#fff9d6;color:#7a6a00}.r-clean{background:#e6f6ec;color:#17663a}
+  .card.high{border-color:#e9a3a3}.card.medium{border-color:#ecc786}
+  .reasons{margin:4px 0 0;padding-left:18px;font-size:.84rem;color:#8a1c1c}
+  .summary{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:.9rem}
+  .stat b{font-size:1.15rem;display:block}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="nav" aria-label="Main navigation">
+    <a class="brand" href="/index.html" aria-label="StudentMarket home">StudentMarket</a>
+    <div class="nav-links">
+      <a href="/index.html">Home</a>
+      <a href="/search.html">Browse listings</a>
+      <a href="/create-listing.html">Create a listing</a>
+    </div>
+  </nav>
+</header>
+
+<main class="filter-main">
+  <p class="eyebrow">Listing review</p>
+  <h1 id="page-title">Filter listings</h1>
+  <p class="lead">Spot invalid or suspicious listings, or filter for the kind of items you’re looking for.</p>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="layout">
+    <aside class="side" aria-label="Filters">
+      <form id="filters" novalidate>
+        <fieldset class="group"><legend>Show</legend>
+          <label class="check"><input type="radio" name="view" value="all" checked> All items</label>
+          <label class="check"><input type="radio" name="view" value="suspicious"> Suspicious only</label>
+          <label class="check"><input type="radio" name="view" value="clean"> Hide suspicious</label>
+        </fieldset>
+        <fieldset class="group"><legend>Warning type</legend><div id="flags"></div></fieldset>
+        <div class="group">
+          <label class="glabel" for="q" style="margin:0 0 6px">Keyword</label>
+          <input id="q" type="search" placeholder="e.g. textbook">
+        </div>
+        <fieldset class="group"><legend>Category</legend><div id="cats"></div></fieldset>
+        <fieldset class="group"><legend>Condition</legend><div id="conds"></div></fieldset>
+        <div class="group">
+          <div class="glabel">Price ($)</div>
+          <div class="price-row">
+            <input id="min" type="number" min="0" step="1" placeholder="Min" aria-label="Minimum price">
+            <span>to</span>
+            <input id="max" type="number" min="0" step="1" placeholder="Max" aria-label="Maximum price">
+          </div>
+          <div class="error" id="e-price"></div>
+        </div>
+        <div class="group">
+          <label class="glabel" for="school" style="margin:0 0 6px">School</label>
+          <select id="school"><option value="">All schools</option></select>
+          <label class="check" style="margin-top:10px"><input type="checkbox" id="verified"> Verified sellers only</label>
+        </div>
+        <button class="primary" type="button" id="clear">Clear filters</button>
+      </form>
+    </aside>
+
+    <section aria-live="polite">
+      <div class="results-bar">
+        <strong id="count"></strong>
+        <select id="sort" aria-label="Sort by">
+          <option value="risk">Highest risk first</option>
+          <option value="newest">Newest</option>
+          <option value="low">Price: low to high</option>
+          <option value="high">Price: high to low</option>
+        </select>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+  </div>
+</main>
+
+<script>
+  // Sample page: runs simple warning rules over a built-in list of example items, in the browser only.
+  // The rules are a first screen to help a reviewer, not a final decision. Later the list can come from
+  // GET /api/listings and the same checks can run on the server.
+  const CATEGORIES = ['Textbooks', 'Furniture', 'Electronics', 'School supplies', 'Clothing'];
+  const CONDITIONS = ['New', 'Like new', 'Used - good', 'Used - fair'];
+  const ITEMS = [
+    { id: 1,  title: 'Calculus textbook', category: 'Textbooks', condition: 'Used - good', price: 35, school: 'Wilfrid Laurier University', seller: 'maya_k', verified: true, desc: 'Early Transcendentals, some highlighting.' },
+    { id: 2,  title: 'Desk lamp', category: 'Furniture', condition: 'Like new', price: 8, school: 'Wilfrid Laurier University', seller: 'jordan22', verified: true, desc: 'Adjustable LED lamp with USB port.' },
+    { id: 3,  title: 'Mini fridge', category: 'Furniture', condition: 'Used - good', price: 60, school: 'University of Waterloo', seller: 'sam_w', verified: true, desc: 'Works great, fits in a dorm room.' },
+    { id: 4,  title: 'Scientific calculator', category: 'Electronics', condition: 'Used - good', price: 15, school: 'University of Guelph', seller: 'priya_s', verified: false, desc: 'Allowed in most exams, comes with cover.' },
+    { id: 5,  title: 'MacBook Pro 2023', category: 'Electronics', condition: 'Like new', price: 20, school: 'University of Waterloo', seller: 'deal_guy1', verified: false, desc: 'Brand new laptop, only $20! Pay first by e-transfer and I will ship it, no meetups.' },
+    { id: 6,  title: 'DESIGNER SNEAKERS CHEAP', category: 'Clothing', condition: 'New', price: 30, school: 'McMaster University', seller: 'kicks_4_u', verified: false, desc: 'Counterfeit designer sneakers, great copies in all sizes.' },
+    { id: 7,  title: 'Winter jacket (M)', category: 'Clothing', condition: 'Used - fair', price: 25, school: 'University of Waterloo', seller: 'sam_w', verified: true, desc: 'Warm, a little worn at the cuffs.' },
+    { id: 8,  title: 'iPhone 14', category: 'Electronics', condition: 'Used - good', price: 15, school: 'McMaster University', seller: 'anon_77', verified: false, desc: 'Found it, no questions asked. Text me on WhatsApp.' },
+    { id: 9,  title: 'Bookshelf', category: 'Furniture', condition: 'Used - fair', price: 20, school: 'McMaster University', seller: 'lee_t', verified: true, desc: 'Sturdy 4-shelf, a few scratches.' },
+    { id: 10, title: 'Textbook', category: 'Textbooks', condition: 'Used - good', price: 40, school: 'Wilfrid Laurier University', seller: 'chris_b', verified: true, desc: 'good' },
+    { id: 11, title: 'Laptop stand', category: 'Electronics', condition: 'New', price: 22, school: 'University of Waterloo', seller: 'ana_r', verified: true, desc: 'Foldable aluminum stand, fits up to 17 inches.' },
+    { id: 12, title: 'Backpack', category: 'School supplies', condition: 'Used - good', price: 18, school: 'Wilfrid Laurier University', seller: 'maya_k', verified: true, desc: 'Fits a 15-inch laptop.' },
+    { id: 13, title: 'Backpack', category: 'School supplies', condition: 'Used - good', price: 18, school: 'Wilfrid Laurier University', seller: 'maya_k', verified: true, desc: 'Fits a 15-inch laptop. URGENT, must sell today!' },
+    { id: 14, title: 'Organic chemistry textbook', category: 'Textbooks', condition: 'Like new', price: 55, school: 'University of Guelph', seller: 'priya_s', verified: false, desc: 'Barely opened, includes the study guide.' }
+  ];
+
+  // ---- Warning rules: each returns a short detail string if it applies, otherwise null ----
+  const BANNED = ['stolen', 'no questions asked', 'fake id', 'counterfeit', 'replica', 'firearm', 'weapon', 'vape', 'cannabis', 'pepper spray'];
+  const OFF_PLATFORM = ['pay first', 'e-transfer first', 'etransfer first', 'send money', 'western union', 'gift card', 'cashapp', 'cash app', 'zelle', 'whatsapp', 'telegram', 'wire transfer', 'deposit first', 'no meetup'];
+  const URGENT = ['urgent', 'act now', 'must sell today', 'limited time'];
+  const HIGH_VALUE = ['macbook', 'iphone', 'ipad', 'airpods', 'playstation', 'ps5', 'xbox'];   // normally cost well over $100
+  const MIN_PRICE = { 'Textbooks': 3, 'Furniture': 3, 'Electronics': 10, 'School supplies': 0, 'Clothing': 2 };
+  const has = (text, list) => list.find(w => new RegExp('(^|[^a-z])' + w.replace(/[-\s]/g, '[- ]?') + '([^a-z]|$)').test(text));
+
+  const RULES = [
+    { id: 'banned',    label: 'Prohibited item wording',    points: 5, test: (i, t) => { const w = has(t, BANNED); return w ? '“' + w + '”' : null; } },
+    { id: 'offsite',   label: 'Asks for payment or contact outside the site', points: 4, test: (i, t) => { const w = has(t, OFF_PLATFORM); return w ? '“' + w + '”' : null; } },
+    { id: 'lowprice',  label: 'Price unusually low',        points: 3, test: (i, t) => {
+        const p = '$' + i.price.toFixed(2);
+        if (has(i.title.toLowerCase(), HIGH_VALUE) && i.price < 100) return 'high-value item listed at ' + p;
+        return i.price < MIN_PRICE[i.category] ? p + ' for ' + i.category.toLowerCase() : null; } },
+    { id: 'duplicate', label: 'Duplicate listing',          points: 3, test: i => i.duplicate ? 'same seller and title posted more than once' : null },
+    { id: 'urgent',    label: 'Pressure wording',           points: 2, test: (i, t) => { const w = has(t, URGENT); return w ? '“' + w + '”' : null; } },
+    { id: 'shortdesc', label: 'Description too short',      points: 2, test: i => i.desc.trim().length < 15 ? 'under 15 characters' : null },
+    { id: 'allcaps',   label: 'Title in all capitals',      points: 1, test: i => { const l = i.title.replace(/[^A-Za-z]/g, ''); return l.length > 8 && l === l.toUpperCase() ? 'shouting title' : null; } }
+  ];
+
+  function analyze(items) {
+    const seen = {};
+    items.forEach(i => { const k = i.seller + '|' + i.title.toLowerCase(); seen[k] = (seen[k] || 0) + 1; });
+    items.forEach(i => {
+      i.duplicate = seen[i.seller + '|' + i.title.toLowerCase()] > 1;
+      const text = (i.title + ' ' + i.desc).toLowerCase();
+      i.flags = RULES.map(r => ({ id: r.id, label: r.label, points: r.points, detail: r.test(i, text) })).filter(f => f.detail);
+      i.score = i.flags.reduce((n, f) => n + f.points, 0);
+      i.risk = i.score >= 5 ? 'high' : i.score >= 3 ? 'medium' : i.score >= 1 ? 'low' : 'clean';
+    });
+  }
+  analyze(ITEMS);
+
+  // ---- UI ----
+  const $ = id => document.getElementById(id);
+  function el(tag, cls, text) { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; }
+  const RISK_LABEL = { high: 'High risk', medium: 'Medium risk', low: 'Low risk', clean: 'No warnings' };
+
+  function addChecks(boxId, name, pairs) {
+    pairs.forEach(([value, label]) => {
+      const l = el('label', 'check'), input = document.createElement('input');
+      input.type = 'checkbox'; input.name = name; input.value = value;
+      l.appendChild(input); l.appendChild(document.createTextNode(label));
+      $(boxId).appendChild(l);
+    });
+  }
+  addChecks('flags', 'flag', RULES.map(r => [r.id, r.label]));
+  addChecks('cats', 'category', CATEGORIES.map(c => [c, c]));
+  addChecks('conds', 'condition', CONDITIONS.map(c => [c, c]));
+  [...new Set(ITEMS.map(i => i.school))].sort().forEach(s => $('school').appendChild(el('option', '', s)));
+
+  const picked = name => [...document.querySelectorAll('input[name="' + name + '"]:checked')].map(i => i.value);
+
+  function renderSummary() {
+    const s = $('summary'); s.textContent = '';
+    const flagged = ITEMS.filter(i => i.risk !== 'clean').length, high = ITEMS.filter(i => i.risk === 'high').length;
+    [['Total listings', ITEMS.length], ['With warnings', flagged], ['High risk', high]].forEach(([k, v]) => {
+      const d = el('div', 'stat'); d.appendChild(el('b', '', String(v))); d.appendChild(document.createTextNode(k)); s.appendChild(d);
+    });
+  }
+
+  function render() {
+    const view = document.querySelector('input[name="view"]:checked').value;
+    const flags = picked('flag'), cats = picked('category'), conds = picked('condition');
+    const q = $('q').value.trim().toLowerCase(), school = $('school').value, verifiedOnly = $('verified').checked;
+    const min = $('min').value === '' ? null : Number($('min').value), max = $('max').value === '' ? null : Number($('max').value);
+    const badRange = min !== null && max !== null && min > max;
+    $('e-price').textContent = badRange ? 'Min price can’t be higher than max price.' : '';
+
+    const rows = ITEMS.filter(i =>
+      (view === 'all' || (view === 'suspicious' ? i.risk !== 'clean' : i.risk === 'clean')) &&
+      (!flags.length || i.flags.some(f => flags.includes(f.id))) &&
+      (!q || (i.title + ' ' + i.desc + ' ' + i.category).toLowerCase().includes(q)) &&
+      (!cats.length || cats.includes(i.category)) && (!conds.length || conds.includes(i.condition)) &&
+      (badRange || ((min === null || i.price >= min) && (max === null || i.price <= max))) &&
+      (!school || i.school === school) && (!verifiedOnly || i.verified));
+
+    const sort = $('sort').value;
+    rows.sort((a, b) => sort === 'risk' ? b.score - a.score || b.id - a.id : sort === 'low' ? a.price - b.price : sort === 'high' ? b.price - a.price : b.id - a.id);
+
+    $('count').textContent = rows.length + (rows.length === 1 ? ' listing shown' : ' listings shown');
+    const grid = $('grid'); grid.textContent = '';
+    if (!rows.length) {
+      const e = el('div', 'empty', 'No listings match your filters. Try removing a filter or clearing them all.');
+      e.style.gridColumn = '1 / -1'; grid.appendChild(e); return;
+    }
+    rows.forEach(i => {
+      const c = el('article', 'card ' + i.risk);
+      c.appendChild(el('span', 'risk r-' + i.risk, RISK_LABEL[i.risk]));
+      c.appendChild(el('h3', '', i.title));
+      c.appendChild(el('div', 'price', '$' + i.price.toFixed(2)));
+      const tags = el('div', 'tags');
+      [i.category, i.condition, i.verified ? 'Verified seller' : 'Unverified seller'].forEach(t => tags.appendChild(el('span', 'tag', t)));
+      c.appendChild(tags);
+      c.appendChild(el('p', '', i.desc));
+      c.appendChild(el('p', '', i.school + ' \u00b7 seller ' + i.seller));
+      if (i.flags.length) {
+        const ul = el('ul', 'reasons');
+        i.flags.forEach(f => ul.appendChild(el('li', '', f.label + ': ' + f.detail)));
+        c.appendChild(ul);
+      }
+      grid.appendChild(c);
+    });
+  }
+
+  $('filters').addEventListener('input', render);
+  $('sort').addEventListener('change', render);
+  $('clear').addEventListener('click', () => { $('filters').reset(); render(); });
+  renderSummary(); render();
+</script>
+</body>
+</html>
