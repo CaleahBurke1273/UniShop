@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>StudentMarket | Verify Student</title>
+<style>
+  :root{--navy:#182d4b;--blue:#315b88;--gold:#e4a84b;--ink:#202938;--muted:#687386;--line:#dce2e9;--paper:#f5f7fa;--white:#fff;--bad:#b00020;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  html{scroll-padding-top:env(safe-area-inset-top,0px)}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--paper);line-height:1.5}
+  a{color:inherit}
+  .site-header{background:var(--navy);color:var(--white)}
+  .nav{max-width:1180px;margin:auto;padding:17px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+  .brand{font-size:1.35rem;font-weight:800;letter-spacing:-.03em;text-decoration:none}
+  .nav-links{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .nav-links a{color:var(--white);text-decoration:none;font-size:.95rem}
+  .nav-links a:hover,.nav-links a:focus{text-decoration:underline}
+  main{max-width:520px;margin:32px auto 50px;padding:0 16px}
+  .panel{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:28px}
+  .eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.75rem;font-weight:700;color:var(--blue);margin:0 0 6px}
+  h1{font-size:1.8rem;line-height:1.15;margin:0 0 6px}
+  .lead{color:var(--muted);margin:0 0 20px}
+  label{display:block;font-weight:700;font-size:.9rem;margin:14px 0 6px}
+  input,select,button{font:inherit}
+  input,select{width:100%;border:1px solid #cbd3de;border-radius:8px;padding:11px;background:#fff;color:var(--ink)}
+  input:focus,select:focus,button:focus-visible,a:focus-visible{outline:3px solid #f0bd6c;outline-offset:2px}
+  .invalid{border-color:var(--bad)}
+  .error{color:var(--bad);font-size:.83rem;min-height:18px;margin-top:4px}
+  .hint{color:var(--muted);font-size:.83rem;margin-top:4px}
+  .pw{position:relative}
+  .pw input{padding-right:72px}
+  .pw button{position:absolute;right:5px;top:5px;bottom:5px;border:0;border-radius:6px;background:#e9eef5;color:var(--navy);padding:0 12px;font-weight:700;font-size:.85rem;cursor:pointer}
+  .primary{width:100%;margin-top:18px;border:0;border-radius:9px;padding:13px 17px;background:var(--gold);color:#17263b;font-weight:700;cursor:pointer}
+  .primary:hover{background:#f0bd6c}
+  #result{display:none;margin-top:18px;padding:14px;background:#e6f6ec;color:#17663a;border-radius:8px}
+  @media (max-width:650px){.nav{align-items:flex-start;flex-direction:column}.panel{padding:22px 18px}main{margin-top:20px}}
+  .step[hidden]{display:none}
+  .codebox{letter-spacing:.4em;font-size:1.4rem;text-align:center}
+  .ghost{background:none;border:0;color:var(--blue);font-weight:700;cursor:pointer;padding:8px 0;margin-top:8px}
+  .badge{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:2px 9px;margin-left:6px}
+  .b-flag{background:#fde8e8;color:#9b1c1c}.b-ok{background:#e6f6ec;color:#17663a}.b-gone{background:#eceff3;color:#4a5568}
+  .item{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+  .item.removed{opacity:.65}
+  .item h3{margin:0 0 4px;font-size:1.05rem}
+  .meta{color:var(--muted);font-size:.85rem;margin-bottom:8px}
+  .actions{display:flex;gap:10px;margin-top:10px}
+  .danger{background:#b00020;color:#fff;border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer}
+  .secondary{background:#e9eef5;color:var(--navy);border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer}
+  .toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}.toolbar input{flex:1;min-width:180px}.toolbar select{width:auto}
+  main.wide{max-width:860px}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="nav" aria-label="Main navigation">
+    <a class="brand" href="/index.html" aria-label="StudentMarket home">StudentMarket</a>
+    <div class="nav-links">
+      <a href="/index.html">Home</a>
+      <a href="/search.html">Browse listings</a>
+      <a href="/create-listing.html">Create a listing</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <section class="panel" aria-labelledby="page-title">
+    <p class="eyebrow">Student verification</p>
+    <h1 id="page-title">Verify you’re a student</h1>
+    <p class="lead">Enter your school email to confirm you belong to the school you signed up with.</p>
+
+    <form id="verifyForm" novalidate>
+      <label for="school">School</label>
+      <select id="school">
+        <option value="">Select your school</option>
+      </select>
+      <div class="error" id="e-school"></div>
+
+      <label for="email">School email</label>
+      <input id="email" type="email" autocomplete="email">
+      <div class="hint" id="domainHint">Choose your school to see which email ending to use.</div>
+      <div class="error" id="e-email"></div>
+
+      <button class="primary" type="submit">Verify</button>
+    </form>
+    <div id="result" role="status"></div>
+  </section>
+</main>
+
+<script>
+  // Sample page: checks the email's domain against the chosen school in the browser only.
+  // It does not send an email or save anything. Server-side checking comes later.
+  const SCHOOL_DOMAINS = {
+  'Algoma University': ['algomau.ca'],
+  'Brock University': ['brocku.ca'],
+  'Carleton University': ['cmail.carleton.ca', 'carleton.ca'],
+  'Dominican University College': ['dominicanu.ca'],
+  'Huron University College': ['huron.uwo.ca', 'uwo.ca'],
+  'King\u2019s University College at Western': ['kings.uwo.ca', 'uwo.ca'],
+  'Lakehead University': ['lakeheadu.ca'],
+  'Laurentian University': ['laurentian.ca'],
+  'McMaster University': ['mcmaster.ca'],
+  'Nipissing University': ['nipissingu.ca'],
+  'OCAD University': ['ocadu.ca'],
+  'Ontario Tech University': ['ontariotechu.net', 'ontariotechu.ca'],
+  'Queen\u2019s University': ['queensu.ca'],
+  'Redeemer University': ['redeemer.ca'],
+  'Royal Military College of Canada': ['rmc.ca', 'rmcc-cmrc.ca'],
+  'Saint Paul University': ['ustpaul.ca'],
+  'Toronto Metropolitan University': ['torontomu.ca'],
+  'Trent University': ['trentu.ca'],
+  'Tyndale University': ['tyndale.ca'],
+  'Universit\u00e9 de Hearst': ['uhearst.ca'],
+  'University of Guelph': ['uoguelph.ca'],
+  'University of Ottawa': ['uottawa.ca'],
+  'University of Sudbury': ['usudbury.ca'],
+  'University of Toronto': ['mail.utoronto.ca', 'utoronto.ca'],
+  'University of Waterloo': ['uwaterloo.ca'],
+  'University of Windsor': ['uwindsor.ca'],
+  'Western University': ['uwo.ca'],
+  'Wilfrid Laurier University': ['mylaurier.ca', 'wlu.ca'],
+  'York University': ['my.yorku.ca', 'yorku.ca']
+};
+
+  const $ = id => document.getElementById(id);
+
+  function setError(id, msg) {
+    $('e-' + id).textContent = msg;
+    $(id).classList.toggle('invalid', !!msg);
+    return msg === '';
+  }
+
+  Object.keys(SCHOOL_DOMAINS).forEach(name => {
+    const o = document.createElement('option');
+    o.textContent = name;
+    $('school').appendChild(o);
+  });
+
+  $('school').addEventListener('change', () => {
+    const d = SCHOOL_DOMAINS[$('school').value];
+    $('domainHint').textContent = d ? 'Must end in @' + d.join(' or @') + '.' : 'Choose your school to see which email ending to use.';
+    $('email').placeholder = d ? 'you@' + d[0] : '';
+  });
+
+  $('verifyForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const school = $('school').value;
+    const email = $('email').value.trim().toLowerCase();
+    $('result').style.display = 'none';
+
+    let ok = setError('school', school ? '' : 'Please select your school.');
+    const parts = email.split('@');
+    const validShape = parts.length === 2 && parts[0] && /^[a-z0-9.-]+\.[a-z]{2,}$/.test(parts[1]);
+    let msg = '';
+    if (!email) msg = 'Enter your school email.';
+    else if (!validShape) msg = 'Enter a valid email address.';
+    else if (school && !SCHOOL_DOMAINS[school].includes(parts[1]))
+      msg = 'That email doesn’t match ' + school + '. Use an address ending in @' + SCHOOL_DOMAINS[school].join(' or @') + '.';
+    ok = setError('email', msg) && ok;
+    if (!ok) return;
+
+    const r = $('result');
+    r.style.display = 'block';
+    r.textContent = '';
+    const strong = document.createElement('strong');
+    strong.textContent = 'Verified student: ';
+    r.appendChild(strong);
+    r.appendChild(document.createTextNode(email + ' is a ' + school + ' email.'));
+  });
+</script>
+</body>
+</html>
