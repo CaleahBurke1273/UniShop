@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>StudentMarket | My Account</title>
+<style>
+  :root{--navy:#182d4b;--blue:#315b88;--gold:#e4a84b;--ink:#202938;--muted:#687386;--line:#dce2e9;--paper:#f5f7fa;--white:#fff;--bad:#b00020;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  html{scroll-padding-top:env(safe-area-inset-top,0px)}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--paper);line-height:1.5}
+  a{color:inherit}
+  .site-header{background:var(--navy);color:var(--white)}
+  .nav{max-width:1180px;margin:auto;padding:17px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+  .brand{font-size:1.35rem;font-weight:800;letter-spacing:-.03em;text-decoration:none}
+  .nav-links{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .nav-links a{color:var(--white);text-decoration:none;font-size:.95rem}
+  .nav-links a:hover,.nav-links a:focus,.nav-links a[aria-current]{text-decoration:underline}
+  main{max-width:960px;margin:32px auto 50px;padding:0 16px}
+  .panel{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:26px;margin-bottom:20px}
+  .eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.75rem;font-weight:700;color:var(--blue);margin:0 0 6px}
+  h1{font-size:1.8rem;line-height:1.15;margin:0 0 6px}
+  h2{font-size:1.15rem;margin:0 0 4px}
+  .lead{color:var(--muted);margin:0 0 22px}
+  label,legend{display:block;font-weight:700;font-size:.9rem;margin:14px 0 6px;padding:0}
+  fieldset{border:0;margin:0;padding:0}
+  input,textarea,button{font:inherit}
+  input[type=text],textarea{width:100%;border:1px solid #cbd3de;border-radius:8px;padding:11px;background:#fff;color:var(--ink)}
+  textarea{min-height:84px;resize:vertical}
+  input:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:3px solid #f0bd6c;outline-offset:2px}
+  .invalid{border-color:var(--bad)}
+  .error{color:var(--bad);font-size:.83rem;min-height:18px;margin-top:4px}
+  .hint{color:var(--muted);font-size:.83rem;margin-top:4px}
+  .primary{border:0;border-radius:9px;padding:12px 22px;background:var(--gold);color:#17263b;font-weight:700;cursor:pointer;margin-top:14px}
+  .primary:hover{background:#f0bd6c}
+  .secondary{border:0;border-radius:9px;padding:11px 18px;background:#e9eef5;color:var(--navy);font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+  .secondary:hover{background:#dbe4ef}
+  #result{display:none;margin-top:16px;padding:12px 14px;background:#e6f6ec;color:#17663a;border-radius:8px}
+
+  .layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:20px;align-items:start}
+  .profile-card{text-align:center}
+  .avatar{width:96px;height:96px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;font-size:2.6rem;color:#fff;background:var(--navy)}
+  .profile-card h2{font-size:1.3rem;margin:0}
+  .handle{color:var(--muted);margin:0 0 8px}
+  .school{font-size:.92rem;margin:0 0 10px}
+  .badge{display:inline-block;font-size:.75rem;font-weight:700;border-radius:999px;padding:3px 10px}
+  .b-ok{background:#e6f6ec;color:#17663a}.b-no{background:#eceff3;color:#4a5568}
+  .bio{margin:14px 0 0;color:var(--ink);font-size:.92rem;overflow-wrap:anywhere}
+  .bio:empty{display:none}
+  .quick{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{position:relative}
+  .opt input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+  .opt span{display:grid;place-items:center;width:44px;height:44px;border:2px solid var(--line);border-radius:10px;font-size:1.3rem;background:#fff}
+  .opt.color span{border-radius:50%;border-color:transparent}
+  .opt input:checked + span{border-color:var(--navy);box-shadow:0 0 0 2px #f0bd6c}
+  .opt input:focus-visible + span{outline:3px solid #f0bd6c;outline-offset:2px}
+  dl{margin:10px 0 0;display:grid;grid-template-columns:140px 1fr;gap:8px 12px;font-size:.95rem}
+  dt{color:var(--muted)}dd{margin:0;font-weight:700;overflow-wrap:anywhere}
+  .danger-row{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+  @media (max-width:760px){.layout{grid-template-columns:1fr}.nav{align-items:flex-start;flex-direction:column}main{margin-top:20px}dl{grid-template-columns:1fr}.panel{padding:20px 18px}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="nav" aria-label="Main navigation">
+    <a class="brand" href="/index.html" aria-label="StudentMarket home">StudentMarket</a>
+    <div class="nav-links">
+      <a href="/index.html">Home</a>
+      <a href="/search.html">Browse listings</a>
+      <a href="/create-listing.html">Create a listing</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <p class="eyebrow">Student-to-student marketplace</p>
+  <h1 id="page-title">My account</h1>
+  <p class="lead" id="lead">Loading your account…</p>
+
+  <div class="layout" id="content" hidden>
+    <aside class="panel profile-card" aria-label="Profile preview">
+      <div class="avatar" id="avatar" aria-hidden="true"></div>
+      <h2 id="pName"></h2>
+      <p class="handle" id="pHandle"></p>
+      <p class="school" id="pSchool"></p>
+      <span class="badge" id="pBadge"></span>
+      <p class="bio" id="pBio"></p>
+      <div class="quick">
+        <a class="secondary" href="/create-listing.html">Create a listing</a>
+        <a class="secondary" href="/search.html">Browse listings</a>
+      </div>
+    </aside>
+
+    <div>
+      <section class="panel" aria-labelledby="edit-title">
+        <h2 id="edit-title">Customize your profile</h2>
+        <p class="hint">This is what other students will see on your profile.</p>
+        <form id="profileForm" novalidate>
+          <label for="prefName">Preferred name (optional)</label>
+          <input id="prefName" type="text" maxlength="40" placeholder="e.g. Alex">
+          <div class="error" id="e-prefName"></div>
+
+          <label for="bio">About me</label>
+          <textarea id="bio" maxlength="160" placeholder="e.g. 3rd year business student. Selling things I no longer need."></textarea>
+          <div class="hint"><span id="bioCount">0</span>/160 characters</div>
+          <div class="error" id="e-bio"></div>
+
+          <label for="pickup">Usual pickup spot (optional)</label>
+          <input id="pickup" type="text" maxlength="60" placeholder="e.g. Library entrance">
+          <div class="error" id="e-pickup"></div>
+
+          <fieldset><legend>Profile picture</legend><div class="opts" id="emojiOpts"></div></fieldset>
+          <fieldset><legend>Picture colour</legend><div class="opts" id="colorOpts"></div></fieldset>
+
+          <button class="primary" type="submit">Save profile</button>
+        </form>
+        <div id="result" role="status"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="details-title">
+        <h2 id="details-title">Account details</h2>
+        <p class="hint">These came from sign-up and can’t be edited here yet.</p>
+        <dl>
+          <dt>Full name</dt><dd id="dName"></dd>
+          <dt>Username</dt><dd id="dUser"></dd>
+          <dt>School</dt><dd id="dSchool"></dd>
+        </dl>
+      </section>
+
+      <section class="panel" aria-labelledby="session-title">
+        <div class="danger-row">
+          <div><h2 id="session-title">Sign out</h2><p class="hint" style="margin:0">End your session on this device.</p></div>
+          <button class="secondary" id="logout" type="button">Sign out</button>
+        </div>
+      </section>
+    </div>
+  </div>
+<script>
+  // Reads your account from GET /api/me (server.js) and signs out with POST /api/logout.
+  // Profile customization (name, bio, picture) is saved in this browser only for now,
+  // because the database has no columns for it yet.
+  const $ = id => document.getElementById(id);
+  const EMOJIS = ['🎓', '📚', '🎒', '🪑', '🎧', '🧢', '☕', '🌱'];
+  const COLORS = [['#182d4b', 'Navy'], ['#315b88', 'Blue'], ['#c98a1f', 'Gold'], ['#2f7d58', 'Green'], ['#8a4f9e', 'Purple']];
+  let me = null, profile = { prefName: '', bio: '', pickup: '', emoji: '🎓', color: '#182d4b' };
+
+  const storageKey = () => 'studentMarketProfile:' + me.username.toLowerCase();
+  function loadProfile() {
+    try { Object.assign(profile, JSON.parse(localStorage.getItem(storageKey()) || '{}')); } catch (err) { /* use defaults */ }
+  }
+
+  function setError(id, msg) {
+    $('e-' + id).textContent = msg;
+    $(id).classList.toggle('invalid', !!msg);
+    return msg === '';
+  }
+
+  function buildChoices() {
+    EMOJIS.forEach(e => {
+      const l = document.createElement('label'); l.className = 'opt'; l.style.margin = '0';
+      const i = document.createElement('input'); i.type = 'radio'; i.name = 'emoji'; i.value = e;
+      const sp = document.createElement('span'); sp.textContent = e;
+      l.append(i, sp); $('emojiOpts').append(l);
+    });
+    COLORS.forEach(([c, name]) => {
+      const l = document.createElement('label'); l.className = 'opt color'; l.style.margin = '0';
+      const i = document.createElement('input'); i.type = 'radio'; i.name = 'color'; i.value = c; i.setAttribute('aria-label', name);
+      const sp = document.createElement('span'); sp.style.background = c;
+      l.append(i, sp); $('colorOpts').append(l);
+    });
+  }
+
+  const chosen = name => (document.querySelector('input[name="' + name + '"]:checked') || {}).value;
+
+  function renderPreview() {
+    const pref = $('prefName').value.trim();
+    $('pName').textContent = pref || me.fullName;
+    $('pHandle').textContent = '@' + me.username;
+    $('pSchool').textContent = me.school;
+    $('pBio').textContent = $('bio').value.trim();
+    $('avatar').textContent = chosen('emoji') || '🎓';
+    $('avatar').style.background = chosen('color') || '#182d4b';
+    $('bioCount').textContent = $('bio').value.length;
+  }
+
+  function fillForm() {
+    $('prefName').value = profile.prefName; $('bio').value = profile.bio; $('pickup').value = profile.pickup;
+    const e = document.querySelector('input[name="emoji"][value="' + profile.emoji + '"]') || document.querySelector('input[name="emoji"]');
+    const c = document.querySelector('input[name="color"][value="' + profile.color + '"]') || document.querySelector('input[name="color"]');
+    e.checked = true; c.checked = true;
+  }
+
+  async function init() {
+    try {
+      const res = await fetch('/api/me');
+      if (res.status === 401) { window.location.href = '/login.html?next=/account.html'; return; }
+      me = await res.json();
+    } catch (err) {
+      $('lead').textContent = 'Could not reach the server. Is it running (node server.js)?';
+      return;
+    }
+    loadProfile(); buildChoices(); fillForm();
+
+    $('dName').textContent = me.fullName; $('dUser').textContent = me.username; $('dSchool').textContent = me.school;
+    const badge = $('pBadge');
+    badge.className = 'badge ' + (me.verified === true ? 'b-ok' : 'b-no');
+    badge.textContent = me.verified === true ? '✓ Verified student' : 'Not verified yet';
+
+    $('lead').textContent = 'Welcome back, ' + (profile.prefName || me.fullName) + '.';
+    $('content').hidden = false;
+    renderPreview();
+  }
+
+  $('profileForm').addEventListener('input', renderPreview);
+
+  $('profileForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const prefName = $('prefName').value.trim(), bio = $('bio').value.trim(), pickup = $('pickup').value.trim();
+    let ok = true;
+    ok = setError('prefName', prefName.length <= 40 ? '' : 'Keep your name under 40 characters.') && ok;
+    ok = setError('bio', bio.length <= 160 ? '' : 'Keep your bio under 160 characters.') && ok;
+    ok = setError('pickup', pickup.length <= 60 ? '' : 'Keep the pickup spot under 60 characters.') && ok;
+    if (!ok) return;
+
+    profile = { prefName, bio, pickup, emoji: chosen('emoji'), color: chosen('color') };
+    const r = $('result'); r.style.display = 'block';
+    try {
+      localStorage.setItem(storageKey(), JSON.stringify(profile));
+      r.textContent = 'Profile saved on this device.';
+      $('lead').textContent = 'Welcome back, ' + (prefName || me.fullName) + '.';
+    } catch (err) {
+      r.textContent = 'Could not save, because browser storage is unavailable.';
+    }
+  });
+
+  $('logout').addEventListener('click', async () => {
+    try { await fetch('/api/logout', { method: 'POST' }); } catch (err) { /* ignore */ }
+    window.location.href = '/index.html';
+  });
+
+  init();
+</script>
+<script src="/nav-auth.js"></script>
+</body>
+</html>
