@@ -124,7 +124,33 @@
       .item-image { min-height: 115px; }
       .results-heading { align-items: flex-start; flex-direction: column; }
     }
-  </style>
+  
+    .safety { border: 1px solid var(--line); border-radius: 10px; margin: 0 0 17px; background: #f8fafc; }
+    .safety summary { cursor: pointer; font-weight: 700; padding: 11px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; list-style: none; }
+    .safety summary::-webkit-details-marker { display: none; }
+    .safety summary::after { content: "▾"; color: var(--blue); }
+    .safety[open] summary::after { content: "▴"; }
+    .safety summary:focus-visible { outline: 3px solid #f0bd6c; outline-offset: 2px; border-radius: 8px; }
+    .safety-count { margin-left: auto; font-size: .75rem; font-weight: 700; color: var(--blue); }
+    .safety-body { padding: 0 14px 6px; }
+    .safety-body .notice { margin: 0 0 12px; }
+    .risk-badge { display: inline-block; border-radius: 100px; padding: 3px 8px; font-size: .73rem; font-weight: 700; }
+    .risk-high { background: #fde8e8; color: #9b1c1c; }
+    .risk-medium { background: #fff1d6; color: #8a5a00; }
+    .risk-low { background: #fff9d6; color: #7a6a00; }
+    .card.risk-high-card { border-color: #e9a3a3; }
+    .card.risk-medium-card { border-color: #ecc786; }
+    .reasons { margin: 6px 0 0; padding-left: 18px; font-size: .82rem; color: #8a1c1c; }
+
+    .layout { display: block; }
+    .filter-left { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .filter-left .active-filters { margin: 0; }
+    .filter-button { display: inline-flex; align-items: center; gap: 8px; }
+    .filter-count { background: var(--navy); color: #fff; border-radius: 999px; font-size: .75rem; padding: 1px 8px; }
+    dialog.filters { width: min(520px, calc(100% - 28px)); padding: 22px; }
+    dialog.filters .filter-heading { position: sticky; top: -22px; background: var(--white); padding: 4px 0 10px; z-index: 1; }
+    dialog.filters .filter-actions { position: sticky; bottom: -22px; background: var(--white); padding: 10px 0 4px; }
+</style>
 </head>
 <body>
   <header class="site-header">
@@ -133,7 +159,7 @@
       <div class="nav-links">
         <a href="/index.html">Home</a>
         <a href="#listings">Browse listings</a>
-        <a href="/create-listing.html">Create a listing</a>
+        <a href="#createListing" id="openCreateListing">Create a listing</a>
         <a href="/login.html">Sign in</a>
       </div>
     </nav>
@@ -152,10 +178,10 @@
     </section>
 
     <div class="layout">
-      <aside class="filters" aria-labelledby="filter-title">
+      <dialog id="filterDialog" class="filters" aria-labelledby="filter-title">
         <div class="filter-heading">
           <h2 id="filter-title">Filter results</h2>
-          <button id="clearFilters" type="button" class="secondary">Clear</button>
+          <div class="dialog-actions" style="margin:0"><button id="clearFilters" type="button" class="secondary">Clear</button><button type="button" class="secondary" data-close="filterDialog" aria-label="Close filters">✕</button></div>
         </div>
         <div class="filter-group">
           <label for="category">Category</label>
@@ -202,31 +228,52 @@
             <option value="price-high">Price: high to low</option>
             <option value="title">Item name: A–Z</option>
             <option value="newest">Newest first</option>
+            <option value="risk">Highest risk first</option>
           </select>
         </div>
+        <details class="safety" id="safetyFilter" open>
+          <summary>Safety filter <span class="safety-count" id="safetyCount"></span></summary>
+          <div class="safety-body">
+            <p class="notice">Flags listings that look invalid or suspicious. It is a first screen, not proof, so a person should still review flagged items.</p>
+            <div class="filter-group">
+              <label>Show</label>
+              <div class="check-row"><input type="radio" id="viewAll" name="safetyView" value="all" checked><label for="viewAll">All listings</label></div>
+              <div class="check-row"><input type="radio" id="viewClean" name="safetyView" value="clean"><label for="viewClean">Hide suspicious</label></div>
+              <div class="check-row"><input type="radio" id="viewSuspicious" name="safetyView" value="suspicious"><label for="viewSuspicious">Suspicious only</label></div>
+            </div>
+            <div class="filter-group">
+              <label>Warning type</label>
+              <div id="flagChecks"></div>
+            </div>
+            <div class="check-row"><input id="verifiedOnly" type="checkbox"><label for="verifiedOnly">Verified sellers only</label></div>
+          </div>
+        </details>
         <div class="check-row"><input id="hideSold" type="checkbox" checked><label for="hideSold">Hide sold items</label></div>
         <div class="filter-actions">
           <button id="applyFilters" class="primary" type="button">Apply filters</button>
         </div>
         <p class="notice">Your school and area filters use the listing's displayed community. This demo does not access your device location.</p>
-      </aside>
+      </dialog>
 
       <section id="listings" class="results-panel" aria-labelledby="results-title">
         <div class="results-heading">
           <div>
             <h2 id="results-title">Available listings</h2>
-            <div id="resultCount" aria-live="polite">Showing listings</div>
+            <div id="resultCount" aria-live="polite">Showing sample listings</div>
           </div>
         </div>
         <div class="results-tools">
-          <div id="activeFilters" class="active-filters" aria-label="Active filters"></div>
+          <div class="filter-left">
+            <button id="openFilters" class="primary filter-button" type="button" aria-haspopup="dialog">Filters <span class="filter-count" id="filterCount" hidden></span></button>
+            <div id="activeFilters" class="active-filters" aria-label="Active filters"></div>
+          </div>
           <div class="view-toggle" aria-label="Listing display mode">
             <button id="gridView" class="secondary" type="button" aria-pressed="true">Grid view</button>
             <button id="listView" class="secondary" type="button" aria-pressed="false">List view</button>
           </div>
         </div>
         <div id="cards" class="cards"></div>
-        <p class="notice">Listings are loaded from the StudentMarket database. Student verification and seller messaging will be added in a later sprint.</p>
+        <p class="notice">Prototype note: listings, sold status, and student verification are demo data only. Category photos are examples, not photos of the exact items. Real accounts, verification, photo uploads, and shared availability require backend/database support.</p>
       </section>
     </div>
   </main>
@@ -236,6 +283,19 @@
     <h2 id="detailsTitle">Item details</h2>
     <div id="detailsContent"></div>
     <div class="dialog-actions"><button type="button" class="secondary" data-close="detailsDialog">Close</button><button type="button" class="primary" id="detailsContact">Contact seller (demo)</button></div>
+  </dialog>
+
+  <dialog id="createDialog" aria-labelledby="createTitle">
+    <h2 id="createTitle">Create a listing</h2>
+    <form id="createForm" class="dialog-form">
+      <div><label for="newTitle">Item name</label><input id="newTitle" required maxlength="80" placeholder="e.g. Desk lamp"></div>
+      <div><label for="newCategory">Category</label><select id="newCategory" required><option value="Textbooks">Textbooks</option><option value="Furniture">Furniture</option><option value="Electronics">Electronics</option><option value="School supplies">School supplies</option><option value="Clothing">Clothing</option></select></div>
+      <div><label for="newPrice">Price (CAD)</label><input id="newPrice" type="number" min="0" step="0.01" required></div>
+      <div><label for="newCondition">Condition</label><select id="newCondition" required><option>New</option><option>Like new</option><option>Used - good</option><option>Used - fair</option></select></div>
+      <div><label for="newSchool">School</label><select id="newSchool" required><option>Wilfrid Laurier University</option><option>University of Waterloo</option></select></div>
+      <div><label for="newDescription">Description</label><textarea id="newDescription" required maxlength="500" placeholder="Describe the item and its condition"></textarea></div>
+      <div class="dialog-actions"><button type="button" class="secondary" data-close="createDialog">Cancel</button><button class="primary" type="submit">Add listing</button></div>
+    </form>
   </dialog>
 
   <dialog id="reportDialog" aria-labelledby="reportTitle">
@@ -250,27 +310,85 @@
   </dialog>
 
   <script>
-    // Listings now come from the database through GET /api/listings (server.js).
-    const ICONS = { "Textbooks": "📚", "Furniture": "🪑", "Electronics": "🎧", "School supplies": "🧮", "Clothing": "🧥" };
-    let listings = [];
+    // Sample data for the Sprint 1 front-end prototype.
+    // Replace this array with data from the project database when the backend is ready.
+    const listings = [
+      { id: 1, title: "Psychology Textbook", category: "Textbooks", price: 35, condition: "Used - good", school: "Wilfrid Laurier University", area: "Waterloo", icon: "📚", description: "Helpful for introductory psychology courses.", createdAt: "2026-10-26" },
+      { id: 2, title: "Study Desk", category: "Furniture", price: 60, condition: "Used - good", school: "University of Waterloo", area: "Waterloo", icon: "🪑", description: "Compact desk, suitable for a student room.", createdAt: "2026-10-22" },
+      { id: 3, title: "Scientific Calculator", category: "School supplies", price: 18, condition: "Like new", school: "Wilfrid Laurier University", area: "Waterloo", icon: "🧮", description: "Works well for math and science courses.", createdAt: "2026-10-27" },
+      { id: 4, title: "Wireless Headphones", category: "Electronics", price: 45, condition: "Used - good", school: "University of Waterloo", area: "Waterloo", icon: "🎧", description: "Wireless headphones for studying or commuting.", createdAt: "2026-10-25" },
+      { id: 5, title: "Winter Jacket", category: "Clothing", price: 30, condition: "Used - fair", school: "Wilfrid Laurier University", area: "Waterloo", icon: "🧥", description: "Warm jacket; check sizing with the seller.", createdAt: "2026-10-19" },
+      { id: 6, title: "Desk Lamp", category: "Electronics", price: 15, condition: "New", school: "Wilfrid Laurier University", area: "Waterloo", icon: "💡", description: "Small lamp for a dorm or study space.", createdAt: "2026-10-27" },
+      { id: 7, title: "Introduction to Biology", category: "Textbooks", price: 42, condition: "Like new", school: "University of Waterloo", area: "Waterloo", icon: "📖", description: "Textbook in very good condition.", createdAt: "2026-10-23" },
+      { id: 8, title: "Notebook Bundle", category: "School supplies", price: 8, condition: "New", school: "Wilfrid Laurier University", area: "Waterloo", icon: "📓", description: "Several unused notebooks bundled together.", createdAt: "2026-10-24" },
+      { id: 9, title: "Office Chair", category: "Furniture", price: 50, condition: "Used - fair", school: "University of Waterloo", area: "Waterloo", icon: "💺", description: "Adjustable chair with signs of normal use.", createdAt: "2026-10-20" },
+      { id: 10, title: "Computer Science Textbook", category: "Textbooks", price: 40, condition: "Used - good", school: "Wilfrid Laurier University", area: "Waterloo", icon: "💻", description: "Introductory computer science textbook with highlighting in a few chapters.", createdAt: "2026-10-27" },
+      { id: 11, title: "Calculus Textbook", category: "Textbooks", price: 35, condition: "Used - good", school: "University of Waterloo", area: "Waterloo", icon: "📘", description: "Calculus textbook with all pages intact and some notes in the margins.", createdAt: "2026-10-25" },
+      { id: 12, title: "Economics Textbook", category: "Textbooks", price: 25, condition: "Used - fair", school: "Wilfrid Laurier University", area: "Waterloo", icon: "📗", description: "Affordable economics textbook with normal signs of use.", createdAt: "2026-10-23" },
+      { id: 13, title: "Statistics Textbook", category: "Textbooks", price: 30, condition: "Like new", school: "University of Waterloo", area: "Waterloo", icon: "📙", description: "Statistics textbook in very good condition with minimal writing.", createdAt: "2026-10-26" },
+      { id: 14, title: "Bookshelf", category: "Furniture", price: 25, condition: "Used - good", school: "Wilfrid Laurier University", area: "Waterloo", icon: "📚", description: "Small bookshelf that fits well in a dorm or student apartment.", createdAt: "2026-10-21" },
+      { id: 15, title: "Mini Fridge", category: "Furniture", price: 80, condition: "Used - good", school: "University of Waterloo", area: "Waterloo", icon: "🧊", description: "Compact mini fridge suitable for a student room; works properly.", createdAt: "2026-10-27" },
+      { id: 16, title: "Dorm Room Chair", category: "Furniture", price: 30, condition: "Used - good", school: "Wilfrid Laurier University", area: "Waterloo", icon: "🪑", description: "Comfortable chair for a desk or study area.", createdAt: "2026-10-18" },
+      { id: 17, title: "Bedside Table", category: "Furniture", price: 20, condition: "Used - fair", school: "University of Waterloo", area: "Waterloo", icon: "🗄️", description: "Simple bedside table with a drawer and a few cosmetic marks.", createdAt: "2026-10-22" },
+      { id: 18, title: "Wireless Computer Mouse", category: "Electronics", price: 15, condition: "Like new", school: "Wilfrid Laurier University", area: "Waterloo", icon: "🖱️", description: "Wireless mouse that works well for laptops and desktop computers.", createdAt: "2026-10-27" },
+      { id: 19, title: "Mechanical Keyboard", category: "Electronics", price: 45, condition: "Used - good", school: "University of Waterloo", area: "Waterloo", icon: "⌨️", description: "Mechanical keyboard in good working condition.", createdAt: "2026-10-24" },
+      { id: 20, title: "USB-C Hub", category: "Electronics", price: 20, condition: "Like new", school: "Wilfrid Laurier University", area: "Waterloo", icon: "🔌", description: "USB-C hub with extra ports for connecting student devices.", createdAt: "2026-10-26" },
+      { id: 21, title: "Portable Monitor", category: "Electronics", price: 100, condition: "Used - good", school: "University of Waterloo", area: "Waterloo", icon: "🖥️", description: "Portable external monitor for studying or working on the go.", createdAt: "2026-10-19" },
+      { id: 22, title: "Notebook Bundle", category: "School supplies", price: 10, condition: "New", school: "Wilfrid Laurier University", area: "Waterloo", icon: "📒", description: "Bundle of unused notebooks for lectures and tutorials.", createdAt: "2026-10-25" },
+      { id: 23, title: "Student Backpack", category: "School supplies", price: 25, condition: "Used - good", school: "University of Waterloo", area: "Waterloo", icon: "🎒", description: "Everyday backpack with room for a laptop and school supplies.", createdAt: "2026-10-20" },
+      { id: 24, title: "Highlighter Set", category: "School supplies", price: 5, condition: "New", school: "Wilfrid Laurier University", area: "Waterloo", icon: "🖍️", description: "Set of colourful highlighters, still unused.", createdAt: "2026-10-27" },
+      { id: 25, title: "Graphing Calculator", category: "School supplies", price: 50, condition: "Used - good", school: "University of Waterloo", area: "Waterloo", icon: "🧮", description: "Graphing calculator suitable for math and science courses.", createdAt: "2026-10-24" },
+      { id: 26, title: "University Hoodie", category: "Clothing", price: 25, condition: "Like new", school: "Wilfrid Laurier University", area: "Waterloo", icon: "👕", description: "Comfortable hoodie in very good condition; ask the seller about sizing.", createdAt: "2026-10-26" },
+      { id: 27, title: "Winter Boots", category: "Clothing", price: 40, condition: "Used - good", school: "University of Waterloo", area: "Waterloo", icon: "🥾", description: "Warm winter boots with normal signs of wear.", createdAt: "2026-10-17" },
+      { id: 28, title: "Sneakers", category: "Clothing", price: 35, condition: "Used - good", school: "Wilfrid Laurier University", area: "Waterloo", icon: "👟", description: "Casual sneakers in good condition; confirm sizing before meeting.", createdAt: "2026-10-22" },
+      { id: 29, title: "Rain Jacket", category: "Clothing", price: 20, condition: "Used - fair", school: "University of Waterloo", area: "Waterloo", icon: "🧥", description: "Lightweight rain jacket with plenty of use left.", createdAt: "2026-10-21" }
+    ];
 
-    async function loadListings() {
-      try {
-        const res = await fetch("/api/listings");
-        listings = await res.json();
-        listings.forEach(item => { item.icon = ICONS[item.category]; });
-      } catch (error) { listings = []; }
-      // Add any school that appears in the data to the School filter.
-      const schoolSelect = document.getElementById("school");
-      const known = new Set(Array.from(schoolSelect.options).map(o => o.value));
-      [...new Set(listings.map(i => i.school))].sort().forEach(name => {
-        if (!known.has(name)) schoolSelect.add(new Option(name, name));
+    // Allow listings created in this browser to remain after refresh (prototype only).
+    try {
+      const savedListings = JSON.parse(localStorage.getItem("studentMarketCustomListings") || "[]");
+      if (Array.isArray(savedListings)) listings.push(...savedListings);
+    } catch (error) { /* Ignore invalid browser storage. */ }
+
+    // Demo-only seller verification and availability labels. A real site must use backend records.
+    listings.forEach(item => {
+      item.verified = [1, 3, 4, 7, 10, 15, 18, 23, 26].includes(item.id);
+      item.status = [5, 9, 17, 21].includes(item.id) ? "Sold" : "Available";
+    });
+
+    // ---- Safety filter: simple warning rules, each returns a short detail if it applies, otherwise null ----
+    // These are a first screen to help a reviewer, not a final decision.
+    const BANNED = ["stolen", "no questions asked", "fake id", "counterfeit", "replica", "firearm", "weapon", "vape", "cannabis", "pepper spray"];
+    const OFF_PLATFORM = ["pay first", "e-transfer first", "etransfer first", "send money", "western union", "gift card", "cashapp", "cash app", "zelle", "whatsapp", "telegram", "wire transfer", "deposit first", "no meetup"];
+    const URGENT = ["urgent", "act now", "must sell today", "limited time"];
+    const HIGH_VALUE = ["macbook", "iphone", "ipad", "airpods", "playstation", "ps5", "xbox"]; // normally cost well over $100
+    const MIN_PRICE = { "Textbooks": 3, "Furniture": 3, "Electronics": 10, "School supplies": 0, "Clothing": 2 };
+    const has = (text, list) => list.find(w => new RegExp("(^|[^a-z])" + w.replace(/[-\s]/g, "[- ]?") + "([^a-z]|$)").test(text));
+
+    const RULES = [
+      { id: "banned", label: "Prohibited item wording", points: 5, test: (i, t) => { const w = has(t, BANNED); return w ? `“${w}”` : null; } },
+      { id: "offsite", label: "Asks for payment or contact outside the site", points: 4, test: (i, t) => { const w = has(t, OFF_PLATFORM); return w ? `“${w}”` : null; } },
+      { id: "lowprice", label: "Price unusually low", points: 3, test: i => {
+          const p = "$" + Number(i.price).toFixed(2);
+          if (has(i.title.toLowerCase(), HIGH_VALUE) && i.price < 100) return `high-value item listed at ${p}`;
+          return i.price < (MIN_PRICE[i.category] || 0) ? `${p} for ${i.category.toLowerCase()}` : null; } },
+      { id: "duplicate", label: "Duplicate listing", points: 3, test: i => i.duplicate ? "same title, description and school posted more than once" : null },
+      { id: "urgent", label: "Pressure wording", points: 2, test: (i, t) => { const w = has(t, URGENT); return w ? `“${w}”` : null; } },
+      { id: "shortdesc", label: "Description too short", points: 2, test: i => i.description.trim().length < 15 ? "under 15 characters" : null },
+      { id: "allcaps", label: "Title in all capitals", points: 1, test: i => { const l = i.title.replace(/[^A-Za-z]/g, ""); return l.length > 8 && l === l.toUpperCase() ? "shouting title" : null; } }
+    ];
+
+    function analyze(items) {
+      const seen = {};
+      const key = i => `${i.title}|${i.description}|${i.school}`.toLowerCase();
+      items.forEach(i => { seen[key(i)] = (seen[key(i)] || 0) + 1; });
+      items.forEach(i => {
+        i.duplicate = seen[key(i)] > 1;
+        const text = `${i.title} ${i.description}`.toLowerCase();
+        i.flags = RULES.map(r => ({ id: r.id, label: r.label, points: r.points, detail: r.test(i, text) })).filter(f => f.detail);
+        i.score = i.flags.reduce((n, f) => n + f.points, 0);
+        i.risk = i.score >= 5 ? "high" : i.score >= 3 ? "medium" : i.score >= 1 ? "low" : "clean";
       });
-      // Links from the homepage can pre-fill the search: /search.html?q=desk&category=Furniture
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("q")) document.getElementById("keyword").value = params.get("q");
-      if (params.get("category")) document.getElementById("category").value = params.get("category");
-      renderListings();
     }
 
     const $ = (id) => document.getElementById(id);
@@ -287,6 +405,18 @@
     const activeFilters = $("activeFilters");
     const gridView = $("gridView");
     const listView = $("listView");
+    RULES.forEach(r => {
+      const row = document.createElement("div");
+      row.className = "check-row";
+      const box = document.createElement("input");
+      box.type = "checkbox"; box.id = "flag-" + r.id; box.dataset.flag = r.id;
+      const lab = document.createElement("label");
+      lab.htmlFor = box.id; lab.textContent = r.label;
+      row.append(box, lab);
+      $("flagChecks").append(row);
+    });
+    const safetyView = () => document.querySelector('input[name="safetyView"]:checked').value;
+    const pickedFlags = () => [...document.querySelectorAll("[data-flag]:checked")].map(b => b.dataset.flag);
 
     // Favorites are saved in this browser so they remain after a refresh.
     const favoriteStorageKey = "studentMarketFavorites";
@@ -315,6 +445,10 @@
       if (minPrice.value !== "") entries.push({ key: "minPrice", label: `Min $${minPrice.value}` });
       if (maxPrice.value !== "") entries.push({ key: "maxPrice", label: `Max $${maxPrice.value}` });
       if (condition.value) entries.push({ key: "condition", label: condition.value });
+      if (safetyView() === "clean") entries.push({ key: "safetyView", label: "Hide suspicious" });
+      if (safetyView() === "suspicious") entries.push({ key: "safetyView", label: "Suspicious only" });
+      pickedFlags().forEach(id => entries.push({ key: "flag-" + id, label: "Warning: " + RULES.find(r => r.id === id).label }));
+      if ($("verifiedOnly").checked) entries.push({ key: "verifiedOnly", label: "Verified sellers only" });
       return entries;
     }
 
@@ -337,6 +471,9 @@
           if (entry.key === "minPrice") minPrice.value = "";
           if (entry.key === "maxPrice") maxPrice.value = "";
           if (entry.key === "condition") condition.value = "";
+          if (entry.key === "safetyView") $("viewAll").checked = true;
+          if (entry.key.startsWith("flag-")) $(entry.key).checked = false;
+          if (entry.key === "verifiedOnly") $("verifiedOnly").checked = false;
           renderListings();
         });
         chip.append(label, remove);
@@ -345,12 +482,18 @@
     }
 
     function renderListings() {
+      analyze(listings);   // re-run so listings created in this browser are checked too
       const query = keyword.value.trim().toLowerCase();
       const min = minPrice.value === "" ? null : Number(minPrice.value);
       const max = maxPrice.value === "" ? null : Number(maxPrice.value);
 
       let matches = listings.filter(item => {
         if ($("hideSold").checked && item.status === "Sold") return false;
+        const view = safetyView(), flagIds = pickedFlags();
+        if (view === "clean" && item.risk !== "clean") return false;
+        if (view === "suspicious" && item.risk === "clean") return false;
+        if (flagIds.length && !item.flags.some(f => flagIds.includes(f.id))) return false;
+        if ($("verifiedOnly").checked && !item.verified) return false;
         const searchableText = `${item.title} ${item.category} ${item.description} ${item.condition} ${item.school} ${item.area}`.toLowerCase();
         return (!query || searchableText.includes(query))
           && (!category.value || item.category === category.value)
@@ -364,9 +507,15 @@
       if (sort.value === "price-high") matches.sort((a, b) => b.price - a.price);
       if (sort.value === "title") matches.sort((a, b) => a.title.localeCompare(b.title));
       if (sort.value === "newest") matches.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      if (sort.value === "risk") matches.sort((a, b) => b.score - a.score);
 
-      resultCount.textContent = `Showing ${matches.length} of ${listings.length} listings`;
+      resultCount.textContent = `Showing ${matches.length} of ${listings.length} sample listings`;
       renderActiveFilters();
+      const safetyActive = (safetyView() !== "all" ? 1 : 0) + pickedFlags().length + ($("verifiedOnly").checked ? 1 : 0);
+      $("safetyCount").textContent = safetyActive ? `${safetyActive} active` : "";
+      const activeCount = getActiveFilterEntries().filter(e => e.key !== "hideSold").length;
+      $("filterCount").textContent = activeCount;
+      $("filterCount").hidden = activeCount === 0;
       cards.replaceChildren();
       cards.classList.toggle("list-view", displayMode === "list");
       gridView.setAttribute("aria-pressed", String(displayMode === "grid"));
@@ -395,16 +544,9 @@
         const image = document.createElement("div");
         image.className = "item-image";
         image.setAttribute("role", "img");
-        image.setAttribute("aria-label", `${item.title} product photo`);
+        image.setAttribute("aria-label", `${item.category} sample product photo`);
         // Use emojis instead of external product image links.
         image.textContent = item.icon || "📦";
-        if (item.image) {
-          const photo = document.createElement("img");
-          photo.src = item.image;
-          photo.alt = item.title;
-          photo.style.cssText = "width:100%;height:100%;object-fit:cover";
-          image.replaceChildren(photo);
-        }
         image.classList.add("image-fallback");
 
         const content = document.createElement("div");
@@ -444,8 +586,15 @@
         if (item.verified) {
           const verifiedBadge = document.createElement("span");
           verifiedBadge.className = "status-badge verified-badge";
-          verifiedBadge.textContent = "✓ Verified student";
+          verifiedBadge.textContent = "✓ Demo verified student";
           statusRow.append(verifiedBadge);
+        }
+        if (item.risk !== "clean") {
+          const riskBadge = document.createElement("span");
+          riskBadge.className = `risk-badge risk-${item.risk}`;
+          riskBadge.textContent = { high: "High risk", medium: "Medium risk", low: "Low risk" }[item.risk];
+          statusRow.append(riskBadge);
+          card.classList.add(`risk-${item.risk}-card`);
         }
         const conditionText = document.createElement("p");
         conditionText.className = "meta";
@@ -475,7 +624,14 @@
         actionRow.className = "action-row";
         actionRow.append(button, reportButton);
         if (item.status === "Sold") card.classList.add("sold-card");
-        content.append(topLine, title, price, statusRow, conditionText, locationText, postedText, description, actionRow);
+        content.append(topLine, title, price, statusRow, conditionText, locationText, postedText, description);
+        if (item.flags.length) {
+          const reasons = document.createElement("ul");
+          reasons.className = "reasons";
+          item.flags.forEach(f => { const li = document.createElement("li"); li.textContent = `${f.label}: ${f.detail}`; reasons.append(li); });
+          content.append(reasons);
+        }
+        content.append(actionRow);
         card.append(image, content);
         cards.append(card);
       });
@@ -489,6 +645,9 @@
       maxPrice.value = "";
       condition.value = "";
       $("hideSold").checked = true;
+      $("viewAll").checked = true;
+      document.querySelectorAll("[data-flag]").forEach(b => { b.checked = false; });
+      $("verifiedOnly").checked = false;
       sort.value = "recommended";
       renderListings();
     }
@@ -496,6 +655,7 @@
     let selectedDetailsItem = null;
     let selectedReportItem = null;
     const detailsDialog = $("detailsDialog");
+    const createDialog = $("createDialog");
     const reportDialog = $("reportDialog");
 
     function showDetails(item) {
@@ -518,7 +678,25 @@
       reportDialog.showModal();
     }
     $("detailsContact").addEventListener("click", () => alert("Seller contact will be available once accounts and messaging are connected to the backend."));
+    $("openCreateListing").addEventListener("click", event => { event.preventDefault(); $("createForm").reset(); createDialog.showModal(); });
     document.querySelectorAll("[data-close]").forEach(btn => btn.addEventListener("click", () => $(btn.dataset.close).close()));
+    $("createForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const newItem = {
+        id: Date.now(), title: $("newTitle").value.trim(), category: $("newCategory").value,
+        price: Number($("newPrice").value), condition: $("newCondition").value,
+        school: $("newSchool").value, area: "Waterloo", icon: "🛍️",
+        description: $("newDescription").value.trim(), createdAt: new Date().toISOString().slice(0,10),
+        verified: false, status: "Available", custom: true
+      };
+      listings.unshift(newItem);
+      try {
+        const custom = listings.filter(item => item.custom);
+        localStorage.setItem("studentMarketCustomListings", JSON.stringify(custom));
+      } catch (error) { alert("The listing was added for this session, but browser storage was unavailable."); }
+      createDialog.close(); clearAllFilters();
+      $("listings").scrollIntoView({behavior:"smooth", block:"start"});
+    });
     $("reportForm").addEventListener("submit", event => {
       event.preventDefault();
       const report = { listingId: selectedReportItem?.id, listingTitle: selectedReportItem?.title, reason: $("reportReason").value, details: $("reportDetails").value.trim(), submittedAt: new Date().toISOString() };
@@ -534,7 +712,18 @@
       renderListings();
       $("listings").scrollIntoView({ behavior: "smooth", block: "start" });
     });
-    $("applyFilters").addEventListener("click", renderListings);
+    const filterDialog = $("filterDialog");
+    $("openFilters").addEventListener("click", () => filterDialog.showModal());
+    $("applyFilters").addEventListener("click", () => {
+      renderListings();
+      filterDialog.close();
+      $("listings").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    filterDialog.addEventListener("click", event => {   // clicking the dark area outside the popup closes it
+      const box = filterDialog.getBoundingClientRect();
+      const outside = event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom;
+      if (outside) filterDialog.close();
+    });
     sort.addEventListener("change", renderListings);
     $("clearFilters").addEventListener("click", clearAllFilters);
     gridView.addEventListener("click", () => { displayMode = "grid"; renderListings(); });
@@ -542,12 +731,16 @@
     [category, school, minPrice, maxPrice, condition, $("hideSold")].forEach(control => {
       control.addEventListener("change", renderListings);
     });
+    document.querySelectorAll('input[name="safetyView"], [data-flag], #verifiedOnly').forEach(control => {
+      control.addEventListener("change", renderListings);
+    });
     [keyword, minPrice, maxPrice].forEach(control => {
       control.addEventListener("input", renderListings);
     });
 
-    // Load listings from the database on page load.
-    loadListings();
+    // Display all sample listings on initial page load.
+    renderListings();
   </script>
+<script src="/nav-auth.js"></script>
 </body>
 </html>
