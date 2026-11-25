@@ -1,0 +1,4 @@
+node_modules/
+studentmarket.db*
+uploads/*
+.env
