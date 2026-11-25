@@ -35,6 +35,15 @@
   .primary:hover{background:#f0bd6c}
   #result{display:none;margin-top:18px;padding:14px;background:#e6f6ec;color:#17663a;border-radius:8px}
   @media (max-width:650px){.nav{align-items:flex-start;flex-direction:column}.panel{padding:22px 18px}main{margin-top:20px}}
+  dialog{border:0;border-radius:14px;width:min(460px,calc(100% - 28px));padding:26px;box-shadow:0 18px 60px #10243b55;color:var(--ink)}
+  dialog::backdrop{background:#101d2bcc}
+  dialog .lead{margin-bottom:6px}
+  .vactions{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:6px}
+  .vactions .primary{width:auto;margin:0;padding:11px 22px}
+  .ghost{background:none;border:0;color:var(--blue);font-weight:700;cursor:pointer;padding:8px 4px}
+  .vnote{margin-top:6px;font-size:.88rem;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .vnote .ok{color:#17663a;font-weight:700}.vnote .no{color:var(--muted)}
+  .vnote button{padding:2px 4px}
 </style>
 </head>
 <body>
@@ -94,6 +103,7 @@
         <option>Wilfrid Laurier University</option>
         <option>York University</option>
       </select>
+      <div class="vnote" id="vnote" hidden></div>
       <div class="error" id="e-school"></div>
 
       <label for="username">Username</label>
@@ -119,10 +129,121 @@
   </section>
 </main>
 
+<dialog id="verifyDialog" aria-labelledby="vTitle">
+  <form id="verifyForm" novalidate>
+    <p class="eyebrow">Student verification</p>
+    <h1 id="vTitle" style="font-size:1.5rem">Verify your school email</h1>
+    <p class="lead" id="vLead"></p>
+    <label for="vEmail">School email</label>
+    <input id="vEmail" type="email" autocomplete="email">
+    <div class="hint" id="vHint"></div>
+    <div class="error" id="e-vEmail"></div>
+    <div class="vactions">
+      <button type="button" class="ghost" id="vCancel">Not now</button>
+      <button class="primary" type="submit">Verify</button>
+    </div>
+  </form>
+</dialog>
+
 <script>
   // Sends the new account to POST /api/register (server.js), which saves it in the database.
   const $ = id => document.getElementById(id);
   const form = $('signupForm');
+
+  // Allowed email endings for each school (exact match). Checked in the browser only for now.
+  const SCHOOL_DOMAINS = {
+  'Algoma University': ['algomau.ca'],
+  'Brock University': ['brocku.ca'],
+  'Carleton University': ['cmail.carleton.ca', 'carleton.ca'],
+  'Dominican University College': ['dominicanu.ca'],
+  'Huron University College': ['huron.uwo.ca', 'uwo.ca'],
+  'King\u2019s University College at Western': ['kings.uwo.ca', 'uwo.ca'],
+  'Lakehead University': ['lakeheadu.ca'],
+  'Laurentian University': ['laurentian.ca'],
+  'McMaster University': ['mcmaster.ca'],
+  'Nipissing University': ['nipissingu.ca'],
+  'OCAD University': ['ocadu.ca'],
+  'Ontario Tech University': ['ontariotechu.net', 'ontariotechu.ca'],
+  'Queen\u2019s University': ['queensu.ca'],
+  'Redeemer University': ['redeemer.ca'],
+  'Royal Military College of Canada': ['rmc.ca', 'rmcc-cmrc.ca'],
+  'Saint Paul University': ['ustpaul.ca'],
+  'Toronto Metropolitan University': ['torontomu.ca'],
+  'Trent University': ['trentu.ca'],
+  'Tyndale University': ['tyndale.ca'],
+  'Universit\u00e9 de Hearst': ['uhearst.ca'],
+  'University of Guelph': ['uoguelph.ca'],
+  'University of Ottawa': ['uottawa.ca'],
+  'University of Sudbury': ['usudbury.ca'],
+  'University of Toronto': ['mail.utoronto.ca', 'utoronto.ca'],
+  'University of Waterloo': ['uwaterloo.ca'],
+  'University of Windsor': ['uwindsor.ca'],
+  'Western University': ['uwo.ca'],
+  'Wilfrid Laurier University': ['mylaurier.ca', 'wlu.ca'],
+  'York University': ['my.yorku.ca', 'yorku.ca']
+};
+  let verified = null;   // { school, email } once the popup check passes
+
+  // Returns an error message, or '' if the email belongs to the school.
+  function checkSchoolEmail(school, email) {
+    const parts = email.split('@');
+    const validShape = parts.length === 2 && parts[0] && /^[a-z0-9.-]+\.[a-z]{2,}$/.test(parts[1]);
+    if (!email) return 'Enter your school email.';
+    if (!validShape) return 'Enter a valid email address.';
+    const domains = SCHOOL_DOMAINS[school] || [];
+    if (!domains.includes(parts[1])) return 'That email doesn’t match ' + school + '. Use an address ending in @' + domains.join(' or @') + '.';
+    return '';
+  }
+
+  const isVerified = () => !!verified && verified.school === $('school').value;
+
+  function renderNote() {
+    const n = $('vnote');
+    n.replaceChildren();
+    if (!$('school').value) { n.hidden = true; return; }
+    n.hidden = false;
+    const msg = document.createElement('span');
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'ghost';
+    btn.addEventListener('click', openVerify);
+    if (isVerified()) { msg.className = 'ok'; msg.textContent = '✓ Verified: ' + verified.email; btn.textContent = 'Change'; }
+    else { msg.className = 'no'; msg.textContent = 'School email not verified yet.'; btn.textContent = 'Verify now'; }
+    n.append(msg, btn);
+  }
+
+  function openVerify() {
+    const school = $('school').value;
+    if (!school) return;
+    const domains = SCHOOL_DOMAINS[school] || [];
+    $('vLead').textContent = 'Enter your ' + school + ' email so we can confirm you’re a student there.';
+    $('vHint').textContent = 'Must end in @' + domains.join(' or @') + '.';
+    $('vEmail').placeholder = 'you@' + domains[0];
+    $('vEmail').value = isVerified() ? verified.email : '';
+    setError('vEmail', '');
+    if (!$('verifyDialog').open) $('verifyDialog').showModal();
+    $('vEmail').focus();
+  }
+
+  $('school').addEventListener('change', () => {
+    verified = null;
+    setError('school', '');
+    renderNote();
+    if ($('school').value) openVerify();   // popup appears as soon as a school is picked
+  });
+
+  $('verifyForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const school = $('school').value;
+    const email = $('vEmail').value.trim().toLowerCase();
+    if (!setError('vEmail', checkSchoolEmail(school, email))) return;
+    verified = { school, email };
+    $('verifyDialog').close();
+    setError('school', '');
+    renderNote();
+  });
+
+  $('vCancel').addEventListener('click', () => $('verifyDialog').close());
+  $('verifyDialog').addEventListener('close', renderNote);
 
   function setError(id, msg) {
     $('e-' + id).textContent = msg;
@@ -147,17 +268,20 @@
 
     let ok = true;
     ok = setError('fullname', name ? '' : 'Full name is required.') && ok;
-    ok = setError('school', school ? '' : 'Please select your school.') && ok;
+    ok = setError('school', !school ? 'Please select your school.' : isVerified() ? '' : 'Please verify your school email.') && ok;
     ok = setError('username', /^[A-Za-z0-9_]{3,20}$/.test(user) ? '' : 'Use 3 to 20 letters, numbers, or underscores.') && ok;
     ok = setError('password', (pw.length >= 10 && /[A-Za-z]/.test(pw) && /\d/.test(pw)) ? '' : 'Use at least 10 characters, with letters and numbers.') && ok;
     ok = setError('confirm', (pw2 && pw2 === pw) ? '' : 'Passwords do not match.') && ok;
-    if (!ok) { const bad = document.querySelector('.invalid'); if (bad) bad.focus(); return; }
+    if (!ok) {
+      if (school && !isVerified()) { openVerify(); return; }
+      const bad = document.querySelector('.invalid'); if (bad) bad.focus(); return;
+    }
 
     try {
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName: name, school, username: user, password: pw })
+        body: JSON.stringify({ fullName: name, school, username: user, password: pw, email: verified.email })
       });
       const data = await res.json();
       if (!res.ok) { setError(data.field || 'username', data.error || 'Could not create account.'); return; }
@@ -172,5 +296,6 @@
     }
   });
 </script>
+<script src="/nav-auth.js"></script>
 </body>
 </html>
